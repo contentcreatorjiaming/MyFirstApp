@@ -12,7 +12,6 @@ import PhotosUI
 struct AddExistingHookView: View {
     @EnvironmentObject private var session: UserSession
     @EnvironmentObject private var store: HookStore
-    @Environment(\.dismiss) private var dismiss
 
     @State private var kind: HookKind = .link
     @State private var linkURL: String = ""
