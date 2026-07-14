@@ -5,15 +5,33 @@
 //  Created by Jiaming Lou on 7/14/26.
 //
 
+import Foundation
 import Testing
 @testable import myFirstApp
 
 struct myFirstAppTests {
 
-    @Test func contentViewInitializes() async throws {
+    @Test func landingViewInitializes() async throws {
         // Smoke test: confirms the root view can be constructed without crashing.
-        // As real features/state land, replace this with tests of actual logic.
-        _ = ContentView()
+        _ = LandingView()
+    }
+
+    @Test func hookStoreSavesAndReloadsAHook() async throws {
+        let store = await HookStore()
+        let hook = Hook(
+            id: UUID(),
+            source: .testNew,
+            kind: .text,
+            linkURL: nil,
+            textContent: "test hook",
+            imageFileName: nil,
+            metrics: nil,
+            createdAt: Date(),
+            authorDisplayName: "tester"
+        )
+        await store.add(hook)
+        let saved = await store.hooks
+        #expect(saved.contains(where: { $0.id == hook.id }))
     }
 
 }
