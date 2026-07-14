@@ -38,7 +38,7 @@ struct TestNewHookView: View {
                     .foregroundColor(.secondary)
 
                 Button("SAVE") { save() }
-                    .buttonStyle(HookButtonStyle(color: .black))
+                    .buttonStyle(HPButtonStyle(color: HPColor.ink))
                     .disabled(!isValid)
                     .opacity(isValid ? 1 : 0.5)
                     .frame(maxWidth: .infinity, alignment: .center)

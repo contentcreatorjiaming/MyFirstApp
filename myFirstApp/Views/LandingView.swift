@@ -13,29 +13,36 @@ struct LandingView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.green.ignoresSafeArea()
+                HPGradientBackground()
 
-                VStack(spacing: 40) {
-                    Text("hook\nplayground")
-                        .font(.custom("Snell Roundhand", size: 40))
-                        .multilineTextAlignment(.center)
-                        .foregroundColor(.white)
+                VStack(spacing: 48) {
+                    Spacer()
 
+                    // Brand mark
+                    VStack(spacing: 4) {
+                        Text("hook")
+                            .font(HPFont.heroTitle)
+                        Text("playground")
+                            .font(HPFont.heroTitle)
+                    }
+                    .foregroundColor(.white)
+
+                    // Navigation buttons
                     VStack(spacing: 14) {
-                        HStack(spacing: 16) {
+                        HStack(spacing: 14) {
                             NavigationLink {
                                 ResearchGridView()
                             } label: {
                                 Text("RESEARCH")
                             }
-                            .buttonStyle(HookButtonStyle(color: .blue))
+                            .buttonStyle(HPButtonStyle(color: HPColor.sky))
 
                             NavigationLink {
                                 SignInGateView()
                             } label: {
                                 Text("CREATE")
                             }
-                            .buttonStyle(HookButtonStyle(color: .pink))
+                            .buttonStyle(HPButtonStyle(color: HPColor.coral))
                         }
 
                         NavigationLink {
@@ -43,27 +50,15 @@ struct LandingView: View {
                         } label: {
                             Text("SAVED HOOKS")
                         }
-                        .buttonStyle(HookButtonStyle(color: .black))
+                        .buttonStyle(HPButtonStyle(color: HPColor.ink))
                     }
+                    .padding(.horizontal, 32)
+
+                    Spacer()
+                    Spacer()
                 }
             }
         }
-    }
-}
-
-/// Shared pill-button style matching the wireframe's rounded rect buttons.
-struct HookButtonStyle: ButtonStyle {
-    let color: Color
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.headline)
-            .foregroundColor(.white)
-            .padding(.horizontal, 20)
-            .padding(.vertical, 12)
-            .background(color)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-            .opacity(configuration.isPressed ? 0.7 : 1)
     }
 }
 

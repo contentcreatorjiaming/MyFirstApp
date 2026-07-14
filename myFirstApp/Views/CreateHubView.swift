@@ -2,9 +2,7 @@
 //  CreateHubView.swift
 //  myFirstApp
 //
-//  Post-sign-in hub matching the wireframe: choose between adding an
-//  existing hook (with real performance data) or testing a brand-new,
-//  unposted idea.
+//  Post-sign-in hub: Add Existing vs Test New.
 //
 
 import SwiftUI
@@ -12,29 +10,30 @@ import SwiftUI
 struct CreateHubView: View {
     var body: some View {
         ZStack {
-            Color.green.ignoresSafeArea()
+            HPGradientBackground()
 
-            VStack(spacing: 32) {
+            VStack(spacing: 36) {
                 Text("hook\nplayground")
-                    .font(.custom("Snell Roundhand", size: 32))
+                    .font(HPFont.screenTitle)
                     .multilineTextAlignment(.center)
                     .foregroundColor(.white)
 
-                VStack(spacing: 16) {
+                VStack(spacing: 14) {
                     NavigationLink {
                         AddExistingHookView()
                     } label: {
                         Text("ADD EXISTING")
                     }
-                    .buttonStyle(HookButtonStyle(color: .blue))
+                    .buttonStyle(HPButtonStyle(color: HPColor.sky, fullWidth: true))
 
                     NavigationLink {
                         TestNewHookView()
                     } label: {
                         Text("TEST NEW")
                     }
-                    .buttonStyle(HookButtonStyle(color: .pink))
+                    .buttonStyle(HPButtonStyle(color: HPColor.coral, fullWidth: true))
                 }
+                .padding(.horizontal, 40)
             }
         }
     }

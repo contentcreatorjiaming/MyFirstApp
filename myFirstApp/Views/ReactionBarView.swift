@@ -100,7 +100,7 @@ struct ReactionBarView: View {
     private var feedbackSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Why? (optional)")
-                .font(.subheadline)
+                .font(HPFont.subheading)
                 .foregroundColor(.secondary)
             HStack {
                 TextField("What would you improve?", text: $feedbackText)
@@ -108,7 +108,7 @@ struct ReactionBarView: View {
                 Button("Send") {
                     submitFeedback()
                 }
-                .buttonStyle(HookButtonStyle(color: .black))
+                .buttonStyle(HPButtonStyle(color: HPColor.ink))
                 .disabled(feedbackText.trimmingCharacters(in: .whitespaces).isEmpty)
                 .opacity(feedbackText.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1)
             }
@@ -118,7 +118,7 @@ struct ReactionBarView: View {
     private func communityFeedback(_ entries: [Reaction]) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Community Feedback")
-                .font(.headline)
+                .font(HPFont.heading)
             ForEach(entries) { entry in
                 HStack(alignment: .top, spacing: 8) {
                     Text(entry.type == .stay ? "👀" : "👋")
@@ -126,7 +126,7 @@ struct ReactionBarView: View {
                         Text(entry.authorDisplayName)
                             .font(.caption.bold())
                         Text(entry.feedback ?? "")
-                            .font(.subheadline)
+                            .font(HPFont.subheading)
                             .foregroundColor(.secondary)
                     }
                 }
