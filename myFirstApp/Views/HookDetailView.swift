@@ -45,6 +45,11 @@ struct HookDetailView: View {
         }
         .navigationTitle("Hook Detail")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                BookmarkButton(hookID: hook.id)
+            }
+        }
     }
 
     // MARK: - Subviews
