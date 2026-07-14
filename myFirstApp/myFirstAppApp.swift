@@ -9,9 +9,14 @@ import SwiftUI
 
 @main
 struct myFirstAppApp: App {
+    @StateObject private var session = UserSession()
+    @StateObject private var hookStore = HookStore()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            LandingView()
+                .environmentObject(session)
+                .environmentObject(hookStore)
         }
     }
 }
