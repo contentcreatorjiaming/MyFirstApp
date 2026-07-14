@@ -6,16 +6,26 @@
 //
 
 import SwiftUI
+import AVKit
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        ZStack {
+            Color.green
+                .ignoresSafeArea()
+            
+            VStack {
+                Text("get hooked")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .foregroundColor(Color.white)
+                    .multilineTextAlignment(.center)
+                
+                
+            }
+
         }
-        .padding()
+        
     }
 }
 
