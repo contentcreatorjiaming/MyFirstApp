@@ -35,6 +35,10 @@ struct HookDetailView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
 
+                // Reaction bar — Stay / Swipe + optional feedback
+                Divider()
+                ReactionBarView(hookID: hook.id)
+
                 Spacer()
             }
             .padding()

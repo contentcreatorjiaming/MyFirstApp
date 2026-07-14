@@ -11,12 +11,18 @@ import SwiftUI
 struct myFirstAppApp: App {
     @StateObject private var session = UserSession()
     @StateObject private var hookStore = HookStore()
+    @StateObject private var reactionStore = ReactionStore()
 
     var body: some Scene {
         WindowGroup {
             LandingView()
                 .environmentObject(session)
                 .environmentObject(hookStore)
+                .environmentObject(reactionStore)
+                .onAppear {
+                    // Seed mock community reactions for existing hooks
+                    reactionStore.seedMockReactions(for: hookStore.hooks.map(\.id))
+                }
         }
     }
 }
