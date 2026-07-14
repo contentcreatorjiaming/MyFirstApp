@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  build-and-test:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          xcodebuild build \
+            -project myFirstApp.xcodeproj \
+            -scheme myFirstApp \
+            -destination 'platform=iOS Simulator,name=iPhone 17'
+
+      - name: Test
+        run: |
+          xcodebuild test \
+            -project myFirstApp.xcodeproj \
+            -scheme myFirstApp \
+            -destination 'platform=iOS Simulator,name=iPhone 17'
