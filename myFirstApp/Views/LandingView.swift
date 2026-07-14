@@ -3,15 +3,12 @@
 //  myFirstApp
 //
 //  Entry point matching the wireframe's first screen: Research / Create.
-//  Research is stubbed for now (out of scope for this pass) — tapping it
-//  shows a "coming soon" placeholder rather than crashing or doing nothing.
 //
 
 import SwiftUI
 
 struct LandingView: View {
     @EnvironmentObject private var session: UserSession
-    @State private var showResearchComingSoon = false
 
     var body: some View {
         NavigationStack {
@@ -25,8 +22,10 @@ struct LandingView: View {
                         .foregroundColor(.white)
 
                     HStack(spacing: 16) {
-                        Button("RESEARCH") {
-                            showResearchComingSoon = true
+                        NavigationLink {
+                            ResearchGridView()
+                        } label: {
+                            Text("RESEARCH")
                         }
                         .buttonStyle(HookButtonStyle(color: .blue))
 
@@ -38,11 +37,6 @@ struct LandingView: View {
                         .buttonStyle(HookButtonStyle(color: .pink))
                     }
                 }
-            }
-            .alert("Coming soon", isPresented: $showResearchComingSoon) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                Text("The Research library is being built next — Create works today.")
             }
         }
     }
@@ -67,4 +61,5 @@ struct HookButtonStyle: ButtonStyle {
 #Preview {
     LandingView()
         .environmentObject(UserSession())
+        .environmentObject(HookStore())
 }
