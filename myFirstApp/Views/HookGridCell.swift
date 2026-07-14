@@ -36,6 +36,10 @@ struct HookGridCell: View {
             }
             .padding(6)
         }
+        .overlay(alignment: .topTrailing) {
+            BookmarkButton(hookID: hook.id)
+                .padding(6)
+        }
         .aspectRatio(1, contentMode: .fill)
     }
 

@@ -11,12 +11,14 @@ import SwiftUI
 struct myFirstAppApp: App {
     @StateObject private var session = UserSession()
     @StateObject private var hookStore = HookStore()
+    @StateObject private var bookmarks = BookmarkStore()
 
     var body: some Scene {
         WindowGroup {
             LandingView()
                 .environmentObject(session)
                 .environmentObject(hookStore)
+                .environmentObject(bookmarks)
         }
     }
 }
