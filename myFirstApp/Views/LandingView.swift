@@ -2,7 +2,7 @@
 //  LandingView.swift
 //  myFirstApp
 //
-//  Entry point matching the wireframe's first screen: Research / Create.
+//  Entry point matching the wireframe: Research / Create / Saved Hooks.
 //
 
 import SwiftUI
@@ -21,20 +21,29 @@ struct LandingView: View {
                         .multilineTextAlignment(.center)
                         .foregroundColor(.white)
 
-                    HStack(spacing: 16) {
-                        NavigationLink {
-                            ResearchGridView()
-                        } label: {
-                            Text("RESEARCH")
+                    VStack(spacing: 14) {
+                        HStack(spacing: 16) {
+                            NavigationLink {
+                                ResearchGridView()
+                            } label: {
+                                Text("RESEARCH")
+                            }
+                            .buttonStyle(HookButtonStyle(color: .blue))
+
+                            NavigationLink {
+                                SignInGateView()
+                            } label: {
+                                Text("CREATE")
+                            }
+                            .buttonStyle(HookButtonStyle(color: .pink))
                         }
-                        .buttonStyle(HookButtonStyle(color: .blue))
 
                         NavigationLink {
-                            SignInGateView()
+                            SavedHooksView()
                         } label: {
-                            Text("CREATE")
+                            Text("SAVED HOOKS")
                         }
-                        .buttonStyle(HookButtonStyle(color: .pink))
+                        .buttonStyle(HookButtonStyle(color: .black))
                     }
                 }
             }
@@ -62,4 +71,5 @@ struct HookButtonStyle: ButtonStyle {
     LandingView()
         .environmentObject(UserSession())
         .environmentObject(HookStore())
+        .environmentObject(BookmarkStore())
 }
