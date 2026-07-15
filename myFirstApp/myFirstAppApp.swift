@@ -26,7 +26,7 @@ struct myFirstAppApp: App {
                 .environmentObject(reactionStore)
                 .environmentObject(bookmarks)
                 .onAppear {
-                    // Seed mock community reactions for existing hooks
+                    SeedData.seedIfNeeded(store: hookStore)
                     reactionStore.seedMockReactions(for: hookStore.hooks.map(\.id))
                 }
         }
