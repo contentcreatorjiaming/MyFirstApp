@@ -85,7 +85,7 @@ private struct NavMenuOverlay: View {
                         NavigationLink {
                             TestHooksPageView()
                         } label: {
-                            menuLabel("TEST HOOKS")
+                            menuLabel("STAY OR SWIPE")
                         }
 
                         NavigationLink {

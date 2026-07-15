@@ -18,6 +18,7 @@ struct TestHooksPageView: View {
     @State private var lastReactionType: ReactionType?
     @State private var lastHookID: UUID?
     @State private var feedbackText = ""
+    @State private var showSentMessage = false
 
     private var testHooks: [Hook] {
         store.hooks.filter { $0.source == .testNew }
@@ -39,6 +40,14 @@ struct TestHooksPageView: View {
                     onStay: { react(.stay) },
                     onSwipe: { react(.swipe) }
                 )
+            }
+
+            // "Sent!" flash
+            if showSentMessage {
+                Text("Sent!")
+                    .font(HPFont.heading)
+                    .foregroundColor(.white)
+                    .transition(.opacity)
             }
         }
         .navigationTitle("")
@@ -76,7 +85,11 @@ struct TestHooksPageView: View {
         if let id = lastHookID, !feedbackText.trimmingCharacters(in: .whitespaces).isEmpty {
             reactionStore.updateFeedback(for: id, author: session.displayName, feedback: feedbackText)
         }
-        skipFeedback()
+        showSentMessage = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            showSentMessage = false
+            skipFeedback()
+        }
     }
 
     // MARK: - States
@@ -133,9 +146,9 @@ struct TestHooksPageView: View {
 
             HStack(spacing: 16) {
                 Button("Skip") { skipFeedback() }
-                    .buttonStyle(HPButtonStyle(color: HPColor.pastelPink))
+                    .buttonStyle(HPButtonStyle(color: HPColor.backgroundDark))
                 Button("Send") { submitFeedback() }
-                    .buttonStyle(HPButtonStyle(color: HPColor.pastelBlue))
+                    .buttonStyle(HPButtonStyle(color: HPColor.backgroundDark))
             }
         }
         .padding()

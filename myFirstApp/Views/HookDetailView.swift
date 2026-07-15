@@ -175,18 +175,21 @@ struct HookDetailView: View {
                 GridItem(.flexible(), spacing: 10),
                 GridItem(.flexible(), spacing: 10)
             ], spacing: 10) {
-                metricCard("Views", value: metrics.views, icon: "eye")
-                metricCard("Shares", value: metrics.shares, icon: "arrowshape.turn.up.right.fill")
-                metricCard("Likes", value: metrics.likes, icon: "heart.fill")
-                metricCard("Saves", value: metrics.saves, icon: "bookmark.fill")
-                metricCard("Reposts", value: metrics.reposts, icon: "arrow.2.squarepath")
-                metricCard("Comments", value: metrics.comments, icon: "bubble.left.fill")
+                metricCard("Views", value: metrics.views, icon: "eye", rank: 1)
+                metricCard("Shares", value: metrics.shares, icon: "arrowshape.turn.up.right.fill", rank: 2)
+                metricCard("Likes", value: metrics.likes, icon: "heart.fill", rank: 3)
+                metricCard("Saves", value: metrics.saves, icon: "bookmark.fill", rank: 4)
+                metricCard("Reposts", value: metrics.reposts, icon: "arrow.2.squarepath", rank: 5)
+                metricCard("Comments", value: metrics.comments, icon: "bubble.left.fill", rank: 6)
             }
         }
     }
 
-    private func metricCard(_ label: String, value: Int, icon: String) -> some View {
+    private func metricCard(_ label: String, value: Int, icon: String, rank: Int) -> some View {
         VStack(spacing: 6) {
+            Text("\(rank)")
+                .font(HPFont.caption)
+                .foregroundColor(HPColor.backgroundDark.opacity(0.4))
             Image(systemName: icon)
                 .font(.body)
                 .foregroundColor(HPColor.backgroundDark)

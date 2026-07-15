@@ -53,9 +53,9 @@ private struct ResearchCard: View {
         } label: {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(spacing: 10) {
-                    Image(systemName: "camera.on.rectangle.fill")
+                    Image(systemName: "camera.aperture")
                         .font(.system(size: 30))
-                        .foregroundColor(HPColor.pastelPink)
+                        .foregroundColor(HPColor.backgroundDark)
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Instagram Reel")
                             .font(HPFont.subheading)
@@ -73,12 +73,10 @@ private struct ResearchCard: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
 
                 HStack {
-                    if let url = hook.linkURL {
-                        Text(url.replacingOccurrences(of: "https://www.instagram.com/", with: "instagram.com/"))
-                            .font(HPFont.caption)
-                            .foregroundColor(HPColor.backgroundDark)
-                            .lineLimit(1)
-                    }
+                    Text("added by \(hook.authorDisplayName)")
+                        .font(HPFont.caption)
+                        .foregroundColor(HPColor.backgroundDark.opacity(0.6))
+                        .lineLimit(1)
                     Spacer()
                     Text("more data →")
                         .font(HPFont.caption)
