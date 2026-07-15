@@ -85,18 +85,25 @@ struct HookDetailView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 14))
             }
         case .link:
-            HStack(spacing: 10) {
-                Image(systemName: "link")
-                    .foregroundColor(HPColor.backgroundDark)
-                Text(hook.linkURL ?? "")
-                    .font(HPFont.body)
-                    .foregroundColor(HPColor.backgroundDark)
-                    .lineLimit(2)
+            Button {
+                if let urlStr = hook.linkURL, let url = URL(string: urlStr) {
+                    UIApplication.shared.open(url)
+                }
+            } label: {
+                HStack(spacing: 10) {
+                    Image(systemName: "link")
+                        .foregroundColor(HPColor.backgroundDark)
+                    Text(hook.linkURL ?? "")
+                        .font(HPFont.body)
+                        .foregroundColor(HPColor.backgroundDark)
+                        .lineLimit(2)
+                        .underline()
+                }
+                .padding(16)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.white)
+                .clipShape(RoundedRectangle(cornerRadius: 14))
             }
-            .padding(16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.white)
-            .clipShape(RoundedRectangle(cornerRadius: 14))
         case .video:
             if let filename = hook.videoFileName {
                 VideoPreviewView(url: store.videoURL(for: filename))
@@ -113,6 +120,9 @@ struct HookDetailView: View {
             Text("Performance")
                 .font(HPFont.heading)
                 .foregroundColor(.white)
+            Text("ordered by what impacts your views the most, per instagram's own ranking")
+                .font(HPFont.caption)
+                .foregroundColor(.white.opacity(0.7))
 
             LazyVGrid(columns: [
                 GridItem(.flexible(), spacing: 10),
@@ -120,10 +130,11 @@ struct HookDetailView: View {
                 GridItem(.flexible(), spacing: 10)
             ], spacing: 10) {
                 metricCard("Views", value: metrics.views, icon: "eye")
-                metricCard("Likes", value: metrics.likes, icon: "heart.fill")
                 metricCard("Shares", value: metrics.shares, icon: "arrowshape.turn.up.right.fill")
-                metricCard("Comments", value: metrics.comments, icon: "bubble.left.fill")
+                metricCard("Likes", value: metrics.likes, icon: "heart.fill")
                 metricCard("Saves", value: metrics.saves, icon: "bookmark.fill")
+                metricCard("Reposts", value: metrics.reposts, icon: "arrow.2.squarepath")
+                metricCard("Comments", value: metrics.comments, icon: "bubble.left.fill")
             }
         }
     }
@@ -159,7 +170,7 @@ struct HookDetailView: View {
             id: UUID(), source: .existing, kind: .text,
             linkURL: nil, textContent: "POV: you discovered the one productivity hack that works",
             imageFileName: nil, videoFileName: nil,
-            metrics: HookMetrics(views: 145000, likes: 8200, shares: 1300, comments: 420, saves: 3100),
+            metrics: HookMetrics(views: 145000, shares: 1300, likes: 8200, saves: 3100, reposts: 0, comments: 420),
             createdAt: Date(), datePosted: nil, authorDisplayName: "creator_jane"
         ))
         .environmentObject(HookStore())
