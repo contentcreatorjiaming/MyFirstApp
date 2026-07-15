@@ -14,6 +14,10 @@ struct myFirstAppApp: App {
     @StateObject private var reactionStore = ReactionStore()
     @StateObject private var bookmarks = BookmarkStore()
 
+    init() {
+        FontRegistration.registerCustomFonts()
+    }
+
     var body: some Scene {
         WindowGroup {
             LandingView()

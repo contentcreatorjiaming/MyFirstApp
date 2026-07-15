@@ -34,12 +34,14 @@ enum HPColor {
 
 enum HPFont {
     static func brand(size: CGFloat) -> Font {
-        .custom("Snell Roundhand", size: size)
+        .custom("Fredoka", size: size)
     }
-    static let heroTitle = brand(size: 44)
-    static let screenTitle = brand(size: 32)
+    static let heroTitle = brand(size: 52)
+    static let heroTitleSmall = brand(size: 28)
+    static let screenTitle = brand(size: 36)
     static let heading = Font.system(size: 20, weight: .bold, design: .rounded)
     static let subheading = Font.system(size: 16, weight: .semibold, design: .rounded)
+    static let menuItem = Font.system(size: 18, weight: .bold, design: .rounded)
     static let body = Font.system(size: 15, weight: .regular, design: .default)
     static let caption = Font.system(size: 12, weight: .medium, design: .rounded)
     static let metric = Font.system(size: 22, weight: .bold, design: .rounded)
