@@ -12,14 +12,23 @@ struct HookPlaygroundTitle: View {
     @EnvironmentObject private var session: UserSession
     @State private var showMenu = false
     var size: CGFloat = 20
+    var twoLines: Bool = false
 
     var body: some View {
         Button {
             showMenu = true
         } label: {
-            Text("hook playground")
-                .font(HPFont.brand(size: size))
+            if twoLines {
+                VStack(spacing: 0) {
+                    Text("hook").font(HPFont.brand(size: size))
+                    Text("playground").font(HPFont.brand(size: size))
+                }
                 .foregroundColor(.white)
+            } else {
+                Text("hook playground")
+                    .font(HPFont.brand(size: size))
+                    .foregroundColor(.white)
+            }
         }
         .buttonStyle(.plain)
         .fullScreenCover(isPresented: $showMenu) {

@@ -13,7 +13,7 @@ struct CreateHubView: View {
             HPGradientBackground()
 
             VStack(spacing: 36) {
-                HookPlaygroundTitle(size: 36)
+                HookPlaygroundTitle(size: 40, twoLines: true)
 
                 HStack(spacing: 14) {
                     NavigationLink {

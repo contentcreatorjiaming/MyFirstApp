@@ -15,8 +15,8 @@ enum HPColor {
     static let backgroundDark = Color(red: 0.13, green: 0.55, blue: 0.40)  // deeper green for text on white
 
     // Action button pair — alternate positions per screen
-    static let pastelBlue = Color(red: 0.55, green: 0.72, blue: 0.95)
-    static let pastelPink = Color(red: 0.95, green: 0.60, blue: 0.68)
+    static let pastelBlue = Color(red: 0.0, green: 0.624, blue: 0.992)      // #009FFD
+    static let pastelPink = Color(red: 0.969, green: 0.631, blue: 0.769)     // #F7A1C4
 
     // Secondary buttons
     static let secondaryBg = Color.white

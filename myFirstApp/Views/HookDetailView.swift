@@ -11,11 +11,47 @@ import SwiftUI
 struct HookDetailView: View {
     let hook: Hook
     @EnvironmentObject private var store: HookStore
+    @EnvironmentObject private var session: UserSession
+    @State private var isEditing = false
+    @State private var editText: String = ""
+
+    private var isOwnHook: Bool {
+        session.isSignedIn && hook.authorDisplayName == session.displayName
+    }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 headerSection
+
+                // Edit option for own hooks
+                if isOwnHook && hook.kind == .text {
+                    if isEditing {
+                        VStack(spacing: 10) {
+                            TextEditor(text: $editText)
+                                .font(HPFont.body)
+                                .frame(height: 80)
+                                .padding(4)
+                                .background(Color.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                            Button("Save Edit") {
+                                store.updateText(hookID: hook.id, newText: editText)
+                                isEditing = false
+                            }
+                            .buttonStyle(HPSecondaryButtonStyle())
+                        }
+                    } else {
+                        Button {
+                            editText = hook.textContent ?? ""
+                            isEditing = true
+                        } label: {
+                            Label("Edit", systemImage: "pencil")
+                                .font(HPFont.caption)
+                                .foregroundColor(HPColor.backgroundDark)
+                        }
+                    }
+                }
+
                 contentSection
 
                 if let metrics = hook.metrics {
@@ -37,7 +73,7 @@ struct HookDetailView: View {
         .toolbarBackground(HPColor.background, for: .navigationBar)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .principal) { HookPlaygroundTitle(size: 16) }
+            ToolbarItem(placement: .principal) { HookPlaygroundTitle(size: 18, twoLines: true) }
         }
     }
 

@@ -43,12 +43,9 @@ struct ReactionBarView: View {
     }
 
     private func reactionButton(type: ReactionType, label: String, count: Int) -> some View {
-        let isSelected = justReacted == type || (justReacted == nil && alreadyReacted && currentReaction == type)
-
         return Button {
             guard session.isSignedIn else { return }
             if alreadyReacted || justReacted != nil {
-                // Toggle: switch to the other reaction
                 reactionStore.switchReaction(hookID: hookID, author: session.displayName, to: type)
                 justReacted = type
             } else {
@@ -67,7 +64,7 @@ struct ReactionBarView: View {
             .foregroundColor(HPColor.backgroundDark)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)
-            .background(isSelected ? HPColor.background.opacity(0.5) : Color.white)
+            .background(Color.white)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(.plain)
@@ -104,8 +101,8 @@ struct ReactionBarView: View {
                 .foregroundColor(.white)
             ForEach(entries) { entry in
                 HStack(alignment: .top, spacing: 8) {
-                    Text(entry.type == .stay ? "Stay" : "Swipe")
-                        .font(HPFont.caption)
+                    Text(entry.type == .stay ? "✓" : "✗")
+                        .font(HPFont.subheading)
                         .foregroundColor(HPColor.backgroundDark)
                     VStack(alignment: .leading, spacing: 2) {
                         Text(entry.authorDisplayName)

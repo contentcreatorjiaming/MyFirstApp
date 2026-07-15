@@ -15,7 +15,7 @@ struct AddExistingHookView: View {
             HPGradientBackground()
 
             VStack(spacing: 36) {
-                HookPlaygroundTitle(size: 28)
+                HookPlaygroundTitle(size: 36, twoLines: true)
 
                 HStack(spacing: 14) {
                     NavigationLink {
@@ -68,7 +68,7 @@ struct ClaimHookView: View {
             .padding()
         }
         .navigationTitle("")
-        .toolbar { ToolbarItem(placement: .principal) { HookPlaygroundTitle(size: 16) } }
+        .toolbar { ToolbarItem(placement: .principal) { HookPlaygroundTitle(size: 18, twoLines: true) } }
         .background(HPColor.background)
         .toolbarBackground(HPColor.background, for: .navigationBar)
     }
@@ -141,7 +141,7 @@ struct AddLinkHookView: View {
     @State private var shares: String = ""
     @State private var comments: String = ""
     @State private var saves: String = ""
-    @State private var showSavedConfirmation = false
+    @State private var navigateToExplore = false
 
     var body: some View {
         ScrollView {
@@ -176,11 +176,11 @@ struct AddLinkHookView: View {
             .padding()
         }
         .navigationTitle("")
-        .toolbar { ToolbarItem(placement: .principal) { HookPlaygroundTitle(size: 16) } }
+        .toolbar { ToolbarItem(placement: .principal) { HookPlaygroundTitle(size: 18, twoLines: true) } }
         .background(HPColor.background)
         .toolbarBackground(HPColor.background, for: .navigationBar)
-        .sheet(isPresented: $showSavedConfirmation) {
-            SavedConfirmationView()
+        .navigationDestination(isPresented: $navigateToExplore) {
+            ResearchGridView()
         }
     }
 
@@ -221,6 +221,6 @@ struct AddLinkHookView: View {
             authorDisplayName: session.displayName
         )
         store.add(hook)
-        showSavedConfirmation = true
+        navigateToExplore = true
     }
 }

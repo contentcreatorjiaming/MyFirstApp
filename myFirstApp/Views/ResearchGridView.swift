@@ -36,7 +36,7 @@ struct ResearchGridView: View {
             }
         }
         .navigationTitle("")
-        .toolbar { ToolbarItem(placement: .principal) { HookPlaygroundTitle(size: 16) } }
+        .toolbar { ToolbarItem(placement: .principal) { HookPlaygroundTitle(size: 18, twoLines: true) } }
         .navigationBarTitleDisplayMode(.inline)
         .background(HPColor.background)
         .toolbarBackground(HPColor.background, for: .navigationBar)
