@@ -39,6 +39,13 @@ final class HookStore: ObservableObject {
         save()
     }
 
+    func updateText(hookID: UUID, newText: String) {
+        if let index = hooks.firstIndex(where: { $0.id == hookID }) {
+            hooks[index].textContent = newText
+            save()
+        }
+    }
+
     /// Saves a UIImage's data into the app's documents directory and returns
     /// the filename to store on the Hook. Keeps images out of the JSON blob.
     func saveImage(_ data: Data) -> String {

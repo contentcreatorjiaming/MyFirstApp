@@ -66,7 +66,7 @@ struct FeedbackView: View {
             }
         }
         .navigationTitle("")
-        .toolbar { ToolbarItem(placement: .principal) { HookPlaygroundTitle(size: 16) } }
+        .toolbar { ToolbarItem(placement: .principal) { HookPlaygroundTitle(size: 18, twoLines: true) } }
     }
 
     private func tapHeart() {

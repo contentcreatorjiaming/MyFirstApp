@@ -46,7 +46,7 @@ struct TestNewHookView: View {
             .padding()
         }
         .navigationTitle("")
-        .toolbar { ToolbarItem(placement: .principal) { HookPlaygroundTitle(size: 16) } }
+        .toolbar { ToolbarItem(placement: .principal) { HookPlaygroundTitle(size: 18, twoLines: true) } }
         .background(HPColor.background)
         .toolbarBackground(HPColor.background, for: .navigationBar)
         .navigationDestination(isPresented: $navigateToTestHooks) {
