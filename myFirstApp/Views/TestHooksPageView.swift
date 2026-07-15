@@ -2,49 +2,87 @@
 //  TestHooksPageView.swift
 //  myFirstApp
 //
-//  Shows only test hooks (user-submitted, untested ideas). Tapping
-//  a hook opens the detail view with Stay/Swipe reactions.
+//  Tinder-style swipe experience for test hooks. Users swipe through
+//  one hook at a time, with gradient background shifting as they drag.
 //
 
 import SwiftUI
 
 struct TestHooksPageView: View {
     @EnvironmentObject private var store: HookStore
-    @EnvironmentObject private var bookmarks: BookmarkStore
+    @EnvironmentObject private var reactionStore: ReactionStore
+    @EnvironmentObject private var session: UserSession
+
+    @State private var currentIndex = 0
+    @State private var showFeedback = false
+    @State private var lastReactionType: ReactionType?
+    @State private var lastHookID: UUID?
+    @State private var feedbackText = ""
 
     private var testHooks: [Hook] {
         store.hooks.filter { $0.source == .testNew }
     }
 
     var body: some View {
-        ScrollView {
+        ZStack {
+            HPGradientBackground()
+
             if testHooks.isEmpty {
                 emptyState
+            } else if currentIndex >= testHooks.count {
+                completionState
+            } else if showFeedback {
+                feedbackPrompt
             } else {
-                LazyVStack(spacing: 14) {
-                    ForEach(testHooks) { hook in
-                        NavigationLink {
-                            HookDetailView(hook: hook)
-                        } label: {
-                            TestHookCard(hook: hook)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
+                SwipeCardView(
+                    hook: testHooks[currentIndex],
+                    onStay: { react(.stay) },
+                    onSwipe: { react(.swipe) }
+                )
             }
         }
         .navigationTitle("")
         .toolbar { ToolbarItem(placement: .principal) { HookPlaygroundTitle(size: 18, twoLines: true) } }
         .navigationBarTitleDisplayMode(.inline)
-        .background(HPColor.background)
-        .toolbarBackground(HPColor.background, for: .navigationBar)
+        .toolbarBackground(.clear, for: .navigationBar)
     }
+
+    // MARK: - React
+
+    private func react(_ type: ReactionType) {
+        guard session.isSignedIn else { return }
+        let hook = testHooks[currentIndex]
+
+        if reactionStore.hasReacted(hookID: hook.id, author: session.displayName) {
+            reactionStore.switchReaction(hookID: hook.id, author: session.displayName, to: type)
+        } else {
+            reactionStore.add(Reaction(
+                id: UUID(), hookID: hook.id, type: type,
+                feedback: nil, authorDisplayName: session.displayName, createdAt: Date()
+            ))
+        }
+        lastReactionType = type
+        lastHookID = hook.id
+        showFeedback = true
+    }
+
+    private func skipFeedback() {
+        showFeedback = false
+        feedbackText = ""
+        currentIndex += 1
+    }
+
+    private func submitFeedback() {
+        if let id = lastHookID, !feedbackText.trimmingCharacters(in: .whitespaces).isEmpty {
+            reactionStore.updateFeedback(for: id, author: session.displayName, feedback: feedbackText)
+        }
+        skipFeedback()
+    }
+
+    // MARK: - States
 
     private var emptyState: some View {
         VStack(spacing: 16) {
-            Spacer()
             Image(systemName: "flask")
                 .font(.system(size: 40))
                 .foregroundColor(.white.opacity(0.6))
@@ -55,43 +93,51 @@ struct TestHooksPageView: View {
                 .font(HPFont.body)
                 .foregroundColor(.white.opacity(0.7))
                 .multilineTextAlignment(.center)
-            Spacer()
         }
-        .frame(maxWidth: .infinity, minHeight: 400)
     }
-}
 
-private struct TestHookCard: View {
-    let hook: Hook
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            if let text = hook.textContent {
-                Text(text)
-                    .font(HPFont.body)
-                    .foregroundColor(HPColor.backgroundDark)
-                    .lineLimit(3)
-            } else if hook.kind == .video {
-                HStack(spacing: 8) {
-                    Image(systemName: "video.fill")
-                        .foregroundColor(HPColor.pastelPink)
-                    Text("Video Hook")
-                        .font(HPFont.subheading)
-                        .foregroundColor(HPColor.backgroundDark)
-                }
+    private var completionState: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "checkmark.circle")
+                .font(.system(size: 60))
+                .foregroundColor(.white)
+            Text("You've reviewed all hooks!")
+                .font(HPFont.heading)
+                .foregroundColor(.white)
+            Text("\(testHooks.count) hooks rated")
+                .font(HPFont.body)
+                .foregroundColor(.white.opacity(0.7))
+            Button("Start Over") {
+                currentIndex = 0
             }
+            .buttonStyle(HPSecondaryButtonStyle())
+        }
+    }
 
-            HStack {
-                Text("by \(hook.authorDisplayName)")
-                    .font(HPFont.caption)
-                    .foregroundColor(HPColor.backgroundDark.opacity(0.6))
-                Spacer()
-                BookmarkButton(hookID: hook.id)
+    private var feedbackPrompt: some View {
+        VStack(spacing: 20) {
+            Text(lastReactionType == .stay ? "You'd stay!" : "You'd swipe past")
+                .font(HPFont.heading)
+                .foregroundColor(.white)
+
+            Text("Want to say why? (optional)")
+                .font(HPFont.body)
+                .foregroundColor(.white.opacity(0.8))
+
+            TextField("leave an optional message", text: $feedbackText)
+                .font(HPFont.body)
+                .padding(14)
+                .background(Color.white)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .padding(.horizontal, 32)
+
+            HStack(spacing: 16) {
+                Button("Skip") { skipFeedback() }
+                    .buttonStyle(HPButtonStyle(color: HPColor.pastelPink))
+                Button("Send") { submitFeedback() }
+                    .buttonStyle(HPButtonStyle(color: HPColor.pastelBlue))
             }
         }
-        .padding(14)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.white.opacity(0.92))
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .padding()
     }
 }
