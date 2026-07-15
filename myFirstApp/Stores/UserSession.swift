@@ -2,9 +2,9 @@
 //  UserSession.swift
 //  myFirstApp
 //
-//  Mock, local-only "sign in" — captures a display name so the rest of the
-//  app has an author identity to attach to hooks. No real auth/backend yet;
-//  this is intentionally swappable for the real thing later.
+//  Mock local auth — stores username + password on device.
+//  Sign up auto-creates. Sign in checks password match.
+//  Swappable for real auth (Firebase/Supabase) later.
 //
 
 import Combine
@@ -14,16 +14,51 @@ import SwiftUI
 @MainActor
 final class UserSession: ObservableObject {
     @AppStorage("displayName") var displayName: String = ""
+    @AppStorage("userPassword") private var storedPassword: String = ""
 
     var isSignedIn: Bool {
         !displayName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
-    func signIn(displayName: String) {
-        self.displayName = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
+    enum AuthError: String {
+        case wrongPassword = "Incorrect password. Try again."
+        case emptyFields = "Please fill in both fields."
+    }
+
+    /// Sign up: creates a new local account.
+    func signUp(username: String, password: String) -> AuthError? {
+        let name = username.trimmingCharacters(in: .whitespacesAndNewlines)
+        let pass = password.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty, !pass.isEmpty else { return .emptyFields }
+        displayName = name
+        storedPassword = pass
+        return nil
+    }
+
+    /// Sign in: checks password against stored credentials.
+    func signIn(username: String, password: String) -> AuthError? {
+        let name = username.trimmingCharacters(in: .whitespacesAndNewlines)
+        let pass = password.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty, !pass.isEmpty else { return .emptyFields }
+
+        if !displayName.isEmpty && name == displayName {
+            // Existing user — check password
+            if pass != storedPassword { return .wrongPassword }
+            return nil
+        }
+        // New user signing in = treat as sign up
+        displayName = name
+        storedPassword = pass
+        return nil
+    }
+
+    /// Legacy convenience for backward compatibility.
+    func signIn(displayName name: String) {
+        displayName = name.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     func signOut() {
         displayName = ""
+        storedPassword = ""
     }
 }

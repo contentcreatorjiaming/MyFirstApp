@@ -2,9 +2,7 @@
 //  ReactionBarView.swift
 //  myFirstApp
 //
-//  The Stay/Swipe quick-reaction bar with optional written feedback.
-//  Appears on HookDetailView. Users tap Stay or Swipe (one-time per hook),
-//  then can optionally leave written feedback explaining their reaction.
+//  Stay/Swipe quick-reaction bar with optional written feedback.
 //
 
 import SwiftUI
@@ -24,15 +22,12 @@ struct ReactionBarView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            // Quick reaction buttons
             reactionButtons
 
-            // Optional feedback input (shown after tapping Stay or Swipe)
             if showFeedbackField {
                 feedbackSection
             }
 
-            // Existing feedback from community
             let entries = reactionStore.feedbackEntries(for: hookID)
             if !entries.isEmpty {
                 communityFeedback(entries)
@@ -40,57 +35,31 @@ struct ReactionBarView: View {
         }
     }
 
-    // MARK: - Subviews
-
     private var reactionButtons: some View {
         HStack(spacing: 20) {
-            reactionButton(
-                type: .stay,
-                label: "STAY",
-                icon: "👀",
-                count: reactionStore.stayCount(for: hookID),
-                color: .green
-            )
-            reactionButton(
-                type: .swipe,
-                label: "SWIPE",
-                icon: "👋",
-                count: reactionStore.swipeCount(for: hookID),
-                color: .red
-            )
+            reactionButton(type: .stay, label: "STAY", count: reactionStore.stayCount(for: hookID))
+            reactionButton(type: .swipe, label: "SWIPE", count: reactionStore.swipeCount(for: hookID))
         }
     }
 
-    private func reactionButton(type: ReactionType, label: String, icon: String, count: Int, color: Color) -> some View {
+    private func reactionButton(type: ReactionType, label: String, count: Int) -> some View {
         Button {
             guard session.isSignedIn, !alreadyReacted else { return }
-            let reaction = Reaction(
-                id: UUID(),
-                hookID: hookID,
-                type: type,
-                feedback: nil,
-                authorDisplayName: session.displayName,
-                createdAt: Date()
-            )
-            reactionStore.add(reaction)
+            reactionStore.add(Reaction(
+                id: UUID(), hookID: hookID, type: type,
+                feedback: nil, authorDisplayName: session.displayName, createdAt: Date()
+            ))
             justReacted = type
             showFeedbackField = true
         } label: {
             VStack(spacing: 6) {
-                Text(icon).font(.title2)
-                Text(label)
-                    .font(.system(size: 13, weight: .bold))
-                Text("\(count)")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                Text(label).font(HPFont.subheading)
+                Text("\(count)").font(HPFont.caption)
             }
+            .foregroundColor(HPColor.backgroundDark)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
-            .background(
-                alreadyReacted || justReacted != nil
-                    ? Color(.systemGray5)
-                    : color.opacity(0.12)
-            )
+            .padding(.vertical, 14)
+            .background(alreadyReacted || justReacted != nil ? Color.white.opacity(0.5) : Color.white)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .disabled(alreadyReacted || justReacted != nil)
@@ -99,18 +68,19 @@ struct ReactionBarView: View {
 
     private var feedbackSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Why? (optional)")
+            Text("Why?")
                 .font(HPFont.subheading)
-                .foregroundColor(.secondary)
+                .foregroundColor(.white)
             HStack {
-                TextField("What would you improve?", text: $feedbackText)
-                    .textFieldStyle(.roundedBorder)
-                Button("Send") {
-                    submitFeedback()
-                }
-                .buttonStyle(HPButtonStyle(color: HPColor.ink))
-                .disabled(feedbackText.trimmingCharacters(in: .whitespaces).isEmpty)
-                .opacity(feedbackText.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1)
+                TextField("leave a message", text: $feedbackText)
+                    .font(HPFont.body)
+                    .padding(12)
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                Button("Send") { submitFeedback() }
+                    .buttonStyle(HPSecondaryButtonStyle())
+                    .disabled(feedbackText.trimmingCharacters(in: .whitespaces).isEmpty)
+                    .opacity(feedbackText.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1)
             }
         }
     }
@@ -119,20 +89,24 @@ struct ReactionBarView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Community Feedback")
                 .font(HPFont.heading)
+                .foregroundColor(.white)
             ForEach(entries) { entry in
                 HStack(alignment: .top, spacing: 8) {
-                    Text(entry.type == .stay ? "👀" : "👋")
+                    Text(entry.type == .stay ? "Stay" : "Swipe")
+                        .font(HPFont.caption)
+                        .foregroundColor(HPColor.backgroundDark)
                     VStack(alignment: .leading, spacing: 2) {
                         Text(entry.authorDisplayName)
-                            .font(.caption.bold())
+                            .font(HPFont.caption)
+                            .foregroundColor(HPColor.backgroundDark)
                         Text(entry.feedback ?? "")
-                            .font(HPFont.subheading)
-                            .foregroundColor(.secondary)
+                            .font(HPFont.body)
+                            .foregroundColor(HPColor.textDark)
                     }
                 }
                 .padding(10)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color(.systemGray6))
+                .background(Color.white.opacity(0.9))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
         }

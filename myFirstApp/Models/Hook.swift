@@ -13,6 +13,7 @@ enum HookKind: String, Codable, CaseIterable {
     case link
     case text
     case visual
+    case video
 }
 
 enum HookSource: String, Codable {
@@ -37,6 +38,7 @@ struct Hook: Identifiable, Codable, Equatable {
     var linkURL: String?
     var textContent: String?
     var imageFileName: String?   // filename within the app's documents/HookImages dir
+    var videoFileName: String?   // filename within the app's documents/HookVideos dir
 
     var metrics: HookMetrics?     // present only for .existing
     var createdAt: Date

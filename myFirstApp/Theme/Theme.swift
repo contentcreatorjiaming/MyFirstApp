@@ -3,7 +3,6 @@
 //  myFirstApp
 //
 //  Central design system: colors, typography, and shared styling constants.
-//  Every view pulls from here — no hardcoded colors or font sizes elsewhere.
 //
 
 import SwiftUI
@@ -11,45 +10,56 @@ import SwiftUI
 // MARK: - Colors
 
 enum HPColor {
-    // Primary brand
-    static let forest = Color(red: 0.13, green: 0.55, blue: 0.40)      // #21A667 — rich green
-    static let forestDark = Color(red: 0.08, green: 0.40, blue: 0.28)   // deeper for gradients
-    static let forestLight = Color(red: 0.85, green: 0.95, blue: 0.90)  // tinted backgrounds
+    // Primary brand — pastel green used as the global background
+    static let background = Color(red: 0.56, green: 0.82, blue: 0.67)      // pastel green
+    static let backgroundDark = Color(red: 0.13, green: 0.55, blue: 0.40)  // deeper green for text on white
+
+    // Action button pair — alternate positions per screen
+    static let pastelBlue = Color(red: 0.55, green: 0.72, blue: 0.95)
+    static let pastelPink = Color(red: 0.95, green: 0.60, blue: 0.68)
+
+    // Secondary buttons
+    static let secondaryBg = Color.white
+    static let secondaryText = Color(red: 0.56, green: 0.82, blue: 0.67)   // matches background green
 
     // Accents
-    static let coral = Color(red: 0.95, green: 0.35, blue: 0.40)       // CTA / Create / swipe
-    static let sky = Color(red: 0.25, green: 0.52, blue: 0.96)         // Research / links
-    static let amber = Color(red: 1.0, green: 0.75, blue: 0.0)         // bookmarks / highlights
-    static let ink = Color(red: 0.12, green: 0.12, blue: 0.14)         // dark text / buttons
+    static let amber = Color(red: 1.0, green: 0.75, blue: 0.0)
+    static let ink = Color(red: 0.12, green: 0.12, blue: 0.14)
 
     // Neutrals
-    static let cardBg = Color(.systemBackground)
-    static let subtleBg = Color(.secondarySystemBackground)
-    static let border = Color(.separator)
-    static let textPrimary = Color(.label)
-    static let textSecondary = Color(.secondaryLabel)
+    static let cardBg = Color.white.opacity(0.92)
+    static let subtleBg = Color.white.opacity(0.85)
+    static let textPrimary = Color.white
+    static let textSecondary = Color.white.opacity(0.8)
+    static let textDark = Color(red: 0.12, green: 0.12, blue: 0.14)
 }
 
 // MARK: - Typography
 
 enum HPFont {
     static func brand(size: CGFloat) -> Font {
+        .custom("Fredoka", size: size).bold()
+    }
+    static func brandRegular(size: CGFloat) -> Font {
         .custom("Fredoka", size: size)
     }
+    // Titles — bold Fredoka
     static let heroTitle = brand(size: 52)
     static let heroTitleSmall = brand(size: 28)
     static let screenTitle = brand(size: 36)
-    static let heading = Font.system(size: 20, weight: .bold, design: .rounded)
-    static let subheading = Font.system(size: 16, weight: .semibold, design: .rounded)
-    static let menuItem = Font.system(size: 18, weight: .bold, design: .rounded)
-    static let body = Font.system(size: 15, weight: .regular, design: .default)
-    static let caption = Font.system(size: 12, weight: .medium, design: .rounded)
-    static let metric = Font.system(size: 22, weight: .bold, design: .rounded)
-    static let metricLabel = Font.system(size: 11, weight: .medium, design: .rounded)
-    static let badge = Font.system(size: 10, weight: .heavy, design: .rounded)
+
+    // Body/UI text — regular Fredoka
+    static let heading = brandRegular(size: 20)
+    static let subheading = brandRegular(size: 16)
+    static let menuItem = brandRegular(size: 18)
+    static let body = brandRegular(size: 15)
+    static let caption = brandRegular(size: 12)
+    static let metric = brandRegular(size: 22)
+    static let metricLabel = brandRegular(size: 11)
+    static let badge = brandRegular(size: 10)
 }
 
-// MARK: - Shared button style (replaces HookButtonStyle)
+// MARK: - Primary button (pastel blue or pink)
 
 struct HPButtonStyle: ButtonStyle {
     let color: Color
@@ -57,7 +67,7 @@ struct HPButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 15, weight: .bold, design: .rounded))
+            .font(HPFont.subheading)
             .foregroundColor(.white)
             .padding(.horizontal, fullWidth ? 0 : 24)
             .padding(.vertical, 14)
@@ -70,15 +80,29 @@ struct HPButtonStyle: ButtonStyle {
     }
 }
 
-// MARK: - Gradient background used on branded screens
+// MARK: - Secondary button (white bg, green text)
+
+struct HPSecondaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(HPFont.subheading)
+            .foregroundColor(HPColor.backgroundDark)
+            .padding(.horizontal, 24)
+            .padding(.vertical, 14)
+            .frame(maxWidth: .infinity)
+            .background(Color.white)
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .scaleEffect(configuration.isPressed ? 0.96 : 1)
+            .opacity(configuration.isPressed ? 0.85 : 1)
+            .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
+    }
+}
+
+// MARK: - Pastel green background (replaces gradient)
 
 struct HPGradientBackground: View {
     var body: some View {
-        LinearGradient(
-            colors: [HPColor.forest, HPColor.forestDark],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-        .ignoresSafeArea()
+        HPColor.background
+            .ignoresSafeArea()
     }
 }

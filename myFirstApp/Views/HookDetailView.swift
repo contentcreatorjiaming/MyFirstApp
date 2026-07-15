@@ -20,8 +20,6 @@ struct HookDetailView: View {
 
                 if let metrics = hook.metrics {
                     metricsSection(metrics)
-                } else {
-                    untestedBadge
                 }
 
                 Divider()
@@ -31,9 +29,12 @@ struct HookDetailView: View {
             }
             .padding()
         }
-        .navigationTitle("Hook Detail")
+        .navigationTitle("")
+        .background(HPColor.background)
+        .toolbarBackground(HPColor.background, for: .navigationBar)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .principal) { HookPlaygroundTitle(size: 16) }
             ToolbarItem(placement: .topBarTrailing) {
                 BookmarkButton(hookID: hook.id)
             }
@@ -45,35 +46,15 @@ struct HookDetailView: View {
     private var headerSection: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text(hook.authorDisplayName)
+                Text("created by \(hook.authorDisplayName)")
                     .font(HPFont.subheading)
+                    .foregroundColor(.white)
                 Text(hook.createdAt, style: .date)
                     .font(HPFont.caption)
                     .foregroundColor(HPColor.textSecondary)
             }
             Spacer()
-            Text(hook.source == .existing ? "PROVEN" : "TESTING")
-                .font(HPFont.badge)
-                .foregroundColor(.white)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 5)
-                .background(hook.source == .existing ? HPColor.forest : HPColor.coral)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
         }
-    }
-
-    private var untestedBadge: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "flask")
-                .foregroundColor(HPColor.coral)
-            Text("This hook hasn't been posted yet — no performance data. Submit it for community feedback!")
-                .font(HPFont.caption)
-                .foregroundColor(HPColor.textSecondary)
-        }
-        .padding(14)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(HPColor.coral.opacity(0.08))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
     @ViewBuilder
@@ -97,16 +78,22 @@ struct HookDetailView: View {
         case .link:
             HStack(spacing: 10) {
                 Image(systemName: "link")
-                    .foregroundColor(HPColor.sky)
+                    .foregroundColor(HPColor.pastelBlue)
                 Text(hook.linkURL ?? "")
                     .font(HPFont.body)
-                    .foregroundColor(HPColor.sky)
+                    .foregroundColor(HPColor.pastelBlue)
                     .lineLimit(2)
             }
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(HPColor.sky.opacity(0.08))
+            .background(HPColor.pastelBlue.opacity(0.08))
             .clipShape(RoundedRectangle(cornerRadius: 14))
+        case .video:
+            if let filename = hook.videoFileName {
+                VideoPreviewView(url: store.videoURL(for: filename))
+                    .frame(height: 250)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+            }
         }
     }
 
@@ -133,7 +120,7 @@ struct HookDetailView: View {
         VStack(spacing: 6) {
             Image(systemName: icon)
                 .font(.body)
-                .foregroundColor(HPColor.forest)
+                .foregroundColor(HPColor.backgroundDark)
             Text(formatNumber(value))
                 .font(HPFont.metric)
                 .foregroundColor(HPColor.textPrimary)
@@ -143,7 +130,7 @@ struct HookDetailView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 14)
-        .background(HPColor.forestLight)
+        .background(HPColor.cardBg)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
@@ -163,6 +150,7 @@ struct HookDetailView: View {
             linkURL: nil,
             textContent: "POV: you just discovered the one productivity hack that actually works",
             imageFileName: nil,
+            videoFileName: nil,
             metrics: HookMetrics(views: 145000, likes: 8200, shares: 1300, comments: 420, saves: 3100),
             createdAt: Date(),
             authorDisplayName: "creator_jane"
