@@ -25,6 +25,7 @@ struct myFirstAppTests {
             linkURL: nil,
             textContent: "test hook",
             imageFileName: nil,
+            videoFileName: nil,
             metrics: nil,
             createdAt: Date(),
             authorDisplayName: "tester"

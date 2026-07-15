@@ -17,12 +17,15 @@ final class HookStore: ObservableObject {
 
     private let fileURL: URL
     private let imagesDirectory: URL
+    private let videosDirectory: URL
 
     init() {
         let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         fileURL = documents.appendingPathComponent("hooks.json")
         imagesDirectory = documents.appendingPathComponent("HookImages", isDirectory: true)
+        videosDirectory = documents.appendingPathComponent("HookVideos", isDirectory: true)
         try? FileManager.default.createDirectory(at: imagesDirectory, withIntermediateDirectories: true)
+        try? FileManager.default.createDirectory(at: videosDirectory, withIntermediateDirectories: true)
         load()
     }
 
@@ -42,6 +45,17 @@ final class HookStore: ObservableObject {
 
     func imageURL(for filename: String) -> URL {
         imagesDirectory.appendingPathComponent(filename)
+    }
+
+    func saveVideo(_ sourceURL: URL) -> String {
+        let filename = "\(UUID().uuidString).mov"
+        let dest = videosDirectory.appendingPathComponent(filename)
+        try? FileManager.default.copyItem(at: sourceURL, to: dest)
+        return filename
+    }
+
+    func videoURL(for filename: String) -> URL {
+        videosDirectory.appendingPathComponent(filename)
     }
 
     private func save() {

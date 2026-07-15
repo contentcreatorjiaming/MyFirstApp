@@ -68,6 +68,7 @@ private struct HookThumbnail: View {
         case .link: return "link"
         case .text: return "text.alignleft"
         case .visual: return "photo"
+        case .video: return "play.circle"
         }
     }
 }

@@ -15,26 +15,9 @@ struct HookGridCell: View {
 
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            // Background — image if visual, colored card if text/link
             cellBackground
                 .frame(minHeight: 120)
                 .clipped()
-
-            // Type badge + source indicator
-            HStack(spacing: 4) {
-                Text(typeIcon)
-                    .font(.caption2)
-                if hook.source == .testNew {
-                    Text("TEST")
-                        .font(.system(size: 8, weight: .bold))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 4)
-                        .padding(.vertical, 2)
-                        .background(HPColor.pastelPink)
-                        .clipShape(RoundedRectangle(cornerRadius: 3))
-                }
-            }
-            .padding(6)
         }
         .overlay(alignment: .topTrailing) {
             BookmarkButton(hookID: hook.id)
@@ -68,7 +51,7 @@ struct HookGridCell: View {
             ZStack {
                 HPColor.pastelBlue.opacity(0.12)
                 VStack(spacing: 4) {
-                    Text("🔗")
+                    Image(systemName: "link")
                         .font(.title3)
                     Text(hook.linkURL ?? "")
                         .font(.system(size: 9))
@@ -76,6 +59,13 @@ struct HookGridCell: View {
                         .foregroundColor(HPColor.pastelBlue)
                         .padding(.horizontal, 6)
                 }
+            }
+        case .video:
+            ZStack {
+                HPColor.pastelPink.opacity(0.15)
+                Image(systemName: "play.circle.fill")
+                    .font(.largeTitle)
+                    .foregroundColor(HPColor.pastelPink)
             }
         }
     }
@@ -90,6 +80,7 @@ struct HookGridCell: View {
         case .link: return "🔗"
         case .text: return "📝"
         case .visual: return "🖼️"
+        case .video: return "🎬"
         }
     }
 }

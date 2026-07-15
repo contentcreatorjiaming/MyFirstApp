@@ -20,8 +20,6 @@ struct HookDetailView: View {
 
                 if let metrics = hook.metrics {
                     metricsSection(metrics)
-                } else {
-                    untestedBadge
                 }
 
                 Divider()
@@ -48,35 +46,15 @@ struct HookDetailView: View {
     private var headerSection: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text(hook.authorDisplayName)
+                Text("created by \(hook.authorDisplayName)")
                     .font(HPFont.subheading)
+                    .foregroundColor(.white)
                 Text(hook.createdAt, style: .date)
                     .font(HPFont.caption)
                     .foregroundColor(HPColor.textSecondary)
             }
             Spacer()
-            Text(hook.source == .existing ? "PROVEN" : "TESTING")
-                .font(HPFont.badge)
-                .foregroundColor(.white)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 5)
-                .background(hook.source == .existing ? HPColor.backgroundDark : HPColor.pastelPink)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
         }
-    }
-
-    private var untestedBadge: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "flask")
-                .foregroundColor(HPColor.pastelPink)
-            Text("This hook hasn't been posted yet — no performance data. Submit it for community feedback!")
-                .font(HPFont.caption)
-                .foregroundColor(HPColor.textSecondary)
-        }
-        .padding(14)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(HPColor.pastelPink.opacity(0.08))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
     @ViewBuilder
@@ -110,6 +88,12 @@ struct HookDetailView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(HPColor.pastelBlue.opacity(0.08))
             .clipShape(RoundedRectangle(cornerRadius: 14))
+        case .video:
+            if let filename = hook.videoFileName {
+                VideoPreviewView(url: store.videoURL(for: filename))
+                    .frame(height: 250)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+            }
         }
     }
 
@@ -166,6 +150,7 @@ struct HookDetailView: View {
             linkURL: nil,
             textContent: "POV: you just discovered the one productivity hack that actually works",
             imageFileName: nil,
+            videoFileName: nil,
             metrics: HookMetrics(views: 145000, likes: 8200, shares: 1300, comments: 420, saves: 3100),
             createdAt: Date(),
             authorDisplayName: "creator_jane"
