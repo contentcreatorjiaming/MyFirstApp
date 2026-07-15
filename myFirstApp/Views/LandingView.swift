@@ -16,6 +16,7 @@ struct LandingView: View {
         NavigationStack {
             ZStack {
                 HPGradientBackground()
+                PlaygroundAnimation()
 
                 VStack(spacing: 0) {
                     if menuOpen {
