@@ -103,8 +103,16 @@ struct SavedHooksView: View {
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color.white.opacity(0.5))
                 .frame(width: 50, height: 50)
-                .overlay(Image(systemName: hook.kind == .link ? "camera.on.rectangle" : "text.alignleft")
-                    .foregroundColor(HPColor.backgroundDark))
+                .overlay(
+                    Group {
+                        if hook.kind == .link {
+                            IGStyleIcon(size: 24, color: HPColor.backgroundDark)
+                        } else {
+                            Image(systemName: "text.alignleft")
+                                .foregroundColor(HPColor.backgroundDark)
+                        }
+                    }
+                )
             VStack(alignment: .leading, spacing: 4) {
                 Text(hook.textContent ?? hook.linkURL?.replacingOccurrences(of: "https://www.instagram.com/", with: "ig/") ?? "Hook")
                     .font(HPFont.body)
