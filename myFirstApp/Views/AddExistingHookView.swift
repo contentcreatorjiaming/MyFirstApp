@@ -58,7 +58,8 @@ struct AddExistingHookView: View {
             }
             .padding()
         }
-        .navigationTitle("Add Existing")
+        .navigationTitle("")
+        .toolbar { ToolbarItem(placement: .principal) { HookPlaygroundTitle(size: 16) } }
         .background(HPColor.background)
         .toolbarBackground(HPColor.background, for: .navigationBar)
         .sheet(isPresented: $showSavedConfirmation) {

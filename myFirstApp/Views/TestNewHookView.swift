@@ -45,7 +45,8 @@ struct TestNewHookView: View {
             }
             .padding()
         }
-        .navigationTitle("Test New")
+        .navigationTitle("")
+        .toolbar { ToolbarItem(placement: .principal) { HookPlaygroundTitle(size: 16) } }
         .background(HPColor.background)
         .toolbarBackground(HPColor.background, for: .navigationBar)
         .sheet(isPresented: $showSavedConfirmation) {

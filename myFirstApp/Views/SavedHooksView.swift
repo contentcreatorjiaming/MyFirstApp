@@ -39,7 +39,8 @@ struct SavedHooksView: View {
                 .padding(.horizontal, 1)
             }
         }
-        .navigationTitle("Saved Hooks")
+        .navigationTitle("")
+        .toolbar { ToolbarItem(placement: .principal) { HookPlaygroundTitle(size: 16) } }
         .background(HPColor.background)
         .toolbarBackground(HPColor.background, for: .navigationBar)
         .navigationBarTitleDisplayMode(.inline)

@@ -31,11 +31,12 @@ struct HookDetailView: View {
             }
             .padding()
         }
-        .navigationTitle("Hook Detail")
+        .navigationTitle("")
         .background(HPColor.background)
         .toolbarBackground(HPColor.background, for: .navigationBar)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .principal) { HookPlaygroundTitle(size: 16) }
             ToolbarItem(placement: .topBarTrailing) {
                 BookmarkButton(hookID: hook.id)
             }
