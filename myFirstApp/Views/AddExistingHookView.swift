@@ -218,7 +218,8 @@ struct AddLinkHookView: View {
             linkURL: linkURL, textContent: nil,
             imageFileName: nil, videoFileName: nil,
             metrics: metrics, createdAt: Date(), datePosted: nil,
-            authorDisplayName: session.displayName
+            authorDisplayName: session.displayName,
+            aiSummary: nil, skipRate: nil, claimedBy: nil
         )
         store.add(hook)
         navigateToExplore = true

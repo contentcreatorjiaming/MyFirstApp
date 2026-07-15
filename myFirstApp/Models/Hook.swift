@@ -41,8 +41,11 @@ struct Hook: Identifiable, Codable, Equatable {
     var imageFileName: String?   // filename within the app's documents/HookImages dir
     var videoFileName: String?   // filename within the app's documents/HookVideos dir
 
-    var metrics: HookMetrics?     // present only for .existing
+    var metrics: HookMetrics?
     var createdAt: Date
-    var datePosted: Date?          // when originally posted (for existing hooks)
+    var datePosted: Date?
     var authorDisplayName: String
+    var aiSummary: String?
+    var skipRate: Double?
+    var claimedBy: String?
 }

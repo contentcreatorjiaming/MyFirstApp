@@ -46,6 +46,14 @@ final class HookStore: ObservableObject {
         }
     }
 
+    func claimHook(hookID: UUID, by username: String, skipRate: Double) {
+        if let index = hooks.firstIndex(where: { $0.id == hookID }) {
+            hooks[index].claimedBy = username
+            hooks[index].skipRate = skipRate
+            save()
+        }
+    }
+
     /// Saves a UIImage's data into the app's documents directory and returns
     /// the filename to store on the Hook. Keeps images out of the JSON blob.
     func saveImage(_ data: Data) -> String {

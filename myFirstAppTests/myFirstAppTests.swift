@@ -29,7 +29,8 @@ struct myFirstAppTests {
             metrics: nil,
             createdAt: Date(),
             datePosted: nil,
-            authorDisplayName: "tester"
+            authorDisplayName: "tester",
+            aiSummary: nil, skipRate: nil, claimedBy: nil
         )
         await store.add(hook)
         let saved = await store.hooks
