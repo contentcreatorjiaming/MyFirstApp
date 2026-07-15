@@ -42,10 +42,10 @@ struct ResearchGridView: View {
         VStack(spacing: 16) {
             Spacer()
             Text("No hooks yet")
-                .font(.title3)
+                .font(HPFont.heading)
                 .foregroundColor(.secondary)
             Text("Create a hook first, or check back\nwhen seed data is loaded.")
-                .font(.subheadline)
+                .font(HPFont.subheading)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
             Spacer()
