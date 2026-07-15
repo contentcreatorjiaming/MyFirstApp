@@ -31,8 +31,8 @@ struct TestNewHookView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 Picker("Hook type", selection: $kind) {
-                    Text("Text").tag(HookKind.text)
-                    Text("Video").tag(HookKind.video)
+                    Text("Text").foregroundColor(HPColor.backgroundDark).tag(HookKind.text)
+                    Text("Video").foregroundColor(HPColor.backgroundDark).tag(HookKind.video)
                 }
                 .pickerStyle(.segmented)
 

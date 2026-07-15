@@ -86,7 +86,7 @@ enum SeedData {
             linkURL: url, textContent: nil, imageFileName: nil, videoFileName: nil,
             metrics: HookMetrics(views: v, shares: sh, likes: l, saves: sv, reposts: r, comments: c),
             createdAt: added, datePosted: posted,
-            authorDisplayName: creators[i],
+            authorDisplayName: "karlie",
             aiSummary: nil, skipRate: nil, claimedBy: nil
         )
     }

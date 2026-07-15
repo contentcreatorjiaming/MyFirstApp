@@ -63,7 +63,7 @@ struct SwipeCardView: View {
                         }
                         .foregroundColor(.white)
                         .frame(width: 80, height: 80)
-                        .background(HPColor.pastelPink.opacity(0.8))
+                        .background(HPColor.backgroundDark.opacity(0.8))
                         .clipShape(Circle())
                     }
 
@@ -78,7 +78,7 @@ struct SwipeCardView: View {
                         }
                         .foregroundColor(.white)
                         .frame(width: 80, height: 80)
-                        .background(HPColor.pastelBlue.opacity(0.8))
+                        .background(HPColor.backgroundDark.opacity(0.8))
                         .clipShape(Circle())
                     }
                 }
