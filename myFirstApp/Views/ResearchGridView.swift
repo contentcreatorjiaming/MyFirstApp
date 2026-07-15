@@ -53,9 +53,7 @@ private struct ResearchCard: View {
         } label: {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(spacing: 10) {
-                    Image(systemName: "camera.aperture")
-                        .font(.system(size: 30))
-                        .foregroundColor(HPColor.backgroundDark)
+                    IGStyleIcon(size: 30, color: HPColor.backgroundDark)
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Instagram Reel")
                             .font(HPFont.subheading)
