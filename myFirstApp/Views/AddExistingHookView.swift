@@ -43,19 +43,18 @@ struct AddExistingHookView: View {
                 contentField
 
                 Text("Real performance metrics")
-                    .font(.headline)
+                    .font(HPFont.heading)
 
-                metricField("Views", text: $views)
-                metricField("Likes", text: $likes)
-                metricField("Shares", text: $shares)
-                metricField("Comments", text: $comments)
-                metricField("Saves", text: $saves)
+                metricField("Views", text: $views, icon: "eye")
+                metricField("Likes", text: $likes, icon: "heart.fill")
+                metricField("Shares", text: $shares, icon: "arrowshape.turn.up.right.fill")
+                metricField("Comments", text: $comments, icon: "bubble.left.fill")
+                metricField("Saves", text: $saves, icon: "bookmark.fill")
 
                 Button("SAVE") { save() }
-                    .buttonStyle(HPButtonStyle(color: HPColor.ink))
+                    .buttonStyle(HPButtonStyle(color: HPColor.forest, fullWidth: true))
                     .disabled(!isValid)
                     .opacity(isValid ? 1 : 0.5)
-                    .frame(maxWidth: .infinity, alignment: .center)
             }
             .padding()
         }
@@ -107,9 +106,14 @@ struct AddExistingHookView: View {
         }
     }
 
-    private func metricField(_ label: String, text: Binding<String>) -> some View {
-        HStack {
-            Text(label).frame(width: 90, alignment: .leading)
+    private func metricField(_ label: String, text: Binding<String>, icon: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .foregroundColor(HPColor.forest)
+                .frame(width: 24)
+            Text(label)
+                .font(HPFont.subheading)
+                .frame(width: 90, alignment: .leading)
             TextField("0", text: text)
                 .textFieldStyle(.roundedBorder)
                 .keyboardType(.numberPad)

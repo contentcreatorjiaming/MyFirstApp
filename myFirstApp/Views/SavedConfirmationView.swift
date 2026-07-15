@@ -2,9 +2,7 @@
 //  SavedConfirmationView.swift
 //  myFirstApp
 //
-//  Simple confirmation shown right after saving a hook. Also lists everything
-//  saved so far as a sanity-check grid — this stands in for the real "Saved
-//  Hooks" list, which is out of scope for this pass.
+//  Shown right after saving a hook. Lists everything saved so far.
 //
 
 import SwiftUI
@@ -18,9 +16,14 @@ struct SavedConfirmationView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                Text("Saved ✓")
-                    .font(.title2.bold())
-                    .padding(.top)
+                VStack(spacing: 8) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 48))
+                        .foregroundColor(HPColor.forest)
+                    Text("Hook Saved")
+                        .font(HPFont.heading)
+                }
+                .padding(.top, 24)
 
                 ScrollView {
                     LazyVGrid(columns: columns, spacing: 12) {
@@ -34,6 +37,7 @@ struct SavedConfirmationView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
+                        .foregroundColor(HPColor.forest)
                 }
             }
         }
@@ -44,21 +48,26 @@ private struct HookThumbnail: View {
     let hook: Hook
 
     var body: some View {
-        VStack(spacing: 4) {
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color.gray.opacity(0.3))
+        VStack(spacing: 6) {
+            RoundedRectangle(cornerRadius: 10)
+                .fill(HPColor.forestLight)
                 .frame(height: 80)
-                .overlay(Text(iconText).font(.title2))
+                .overlay(
+                    Image(systemName: iconName)
+                        .font(.title2)
+                        .foregroundColor(HPColor.forest)
+                )
             Text(hook.source == .existing ? "Existing" : "Test")
-                .font(.caption2)
+                .font(HPFont.caption)
+                .foregroundColor(HPColor.textSecondary)
         }
     }
 
-    private var iconText: String {
+    private var iconName: String {
         switch hook.kind {
-        case .link: return "🔗"
-        case .text: return "📝"
-        case .visual: return "🖼️"
+        case .link: return "link"
+        case .text: return "text.alignleft"
+        case .visual: return "photo"
         }
     }
 }
