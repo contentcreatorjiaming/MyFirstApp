@@ -8,7 +8,9 @@ import SwiftUI
 struct FeedbackView: View {
     @AppStorage("totalHeartTaps") private var totalTaps: Int = 0
     @AppStorage("userHasTapped") private var userHasTapped: Bool = false
-    @State private var showHeartSwell = false
+    @State private var heartScale: CGFloat = 1.0
+    @State private var heartOpacity: Double = 0.0
+    @State private var showBigHeart = false
 
     var body: some View {
         ZStack {
@@ -48,6 +50,7 @@ struct FeedbackView: View {
                 Button { tapHeart() } label: {
                     Text("💚")
                         .font(.system(size: 60))
+                        .scaleEffect(heartScale)
                 }
                 .buttonStyle(.plain)
 
@@ -59,26 +62,45 @@ struct FeedbackView: View {
             }
             .padding()
 
-            // Heart swell animation
-            if showHeartSwell {
-                Text("💚")
-                    .font(.system(size: 300))
-                    .opacity(showHeartSwell ? 0 : 1)
-                    .scaleEffect(showHeartSwell ? 3 : 0.5)
-                    .animation(.easeOut(duration: 1.5), value: showHeartSwell)
+            // Full-screen green heart swell
+            if showBigHeart {
+                Color.green.opacity(heartOpacity)
+                    .ignoresSafeArea()
+                    .overlay(
+                        Text("💚")
+                            .font(.system(size: 200))
+                            .scaleEffect(heartScale)
+                            .opacity(heartOpacity)
+                    )
+                    .allowsHitTesting(false)
             }
         }
         .navigationTitle("")
-        .toolbar { ToolbarItem(placement: .principal) { HookPlaygroundTitle(size: 18, twoLines: true) } }
     }
 
     private func tapHeart() {
-        guard !userHasTapped else { return }
-        userHasTapped = true
-        totalTaps += 1
-        showHeartSwell = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            showHeartSwell = false
+        if !userHasTapped {
+            userHasTapped = true
+            totalTaps += 1
+        }
+
+        // Animate regardless (visual feedback even if count doesn't change)
+        showBigHeart = true
+        heartScale = 0.5
+        heartOpacity = 0.8
+
+        withAnimation(.easeOut(duration: 0.4)) {
+            heartScale = 4.0
+            heartOpacity = 0.9
+        }
+
+        withAnimation(.easeIn(duration: 0.8).delay(0.4)) {
+            heartOpacity = 0
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.3) {
+            showBigHeart = false
+            heartScale = 1.0
         }
     }
 }

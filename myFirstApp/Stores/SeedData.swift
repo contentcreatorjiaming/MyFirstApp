@@ -9,7 +9,7 @@
 import Foundation
 
 enum SeedData {
-    static let seededKey = "hasSeededHooks_v4"
+    static let seededKey = "hasSeededHooks_v5"
 
     static func seedIfNeeded(store: HookStore) {
         guard !UserDefaults.standard.bool(forKey: seededKey) else { return }
@@ -38,7 +38,7 @@ enum SeedData {
         let testHooks = store.hooks.filter { $0.source == .testNew }
         guard !testHooks.isEmpty else { return }
         // Only seed once
-        let feedbackKey = "hasSeededTestFeedback_v1"
+        let feedbackKey = "hasSeededTestFeedback_v2"
         guard !UserDefaults.standard.bool(forKey: feedbackKey) else { return }
 
         let names = ["alex_creates", "maya.hooks", "contentjay", "reelqueen", "viral.vee", "hookmaster"]
@@ -144,7 +144,7 @@ enum SeedData {
             linkURL: url, textContent: nil, imageFileName: nil, videoFileName: nil,
             metrics: HookMetrics(views: v, shares: sh, likes: l, saves: sv, reposts: r, comments: c),
             createdAt: added, datePosted: posted,
-            authorDisplayName: "karlie",
+            authorDisplayName: "jiaming",
             aiSummary: ai, skipRate: nil, claimedBy: nil
         )
     }
