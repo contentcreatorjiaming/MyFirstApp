@@ -17,22 +17,36 @@ struct SavedHooksView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Tab picker
-            Picker("", selection: $selectedTab) {
-                Text("Saved").tag(0)
-                Text("Stayed").tag(1)
-                Text("Swiped").tag(2)
-            }
-            .pickerStyle(.segmented)
-            .padding(.horizontal)
-            .padding(.top, 8)
+            if !session.isSignedIn {
+                VStack(spacing: 16) {
+                    Spacer()
+                    Image(systemName: "person.crop.circle")
+                        .font(.system(size: 40))
+                        .foregroundColor(.white.opacity(0.6))
+                    Text("Sign in to see your hooks")
+                        .font(HPFont.heading)
+                        .foregroundColor(.white)
+                    NavigationLink { SignInGateView() } label: { Text("SIGN IN") }
+                        .buttonStyle(HPSecondaryButtonStyle())
+                    Spacer()
+                }
+            } else {
+                Picker("", selection: $selectedTab) {
+                    Text("Saved").foregroundColor(HPColor.backgroundDark).tag(0)
+                    Text("Stayed").foregroundColor(HPColor.backgroundDark).tag(1)
+                    Text("Swiped").foregroundColor(HPColor.backgroundDark).tag(2)
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal)
+                .padding(.top, 8)
 
-            ScrollView {
-                switch selectedTab {
-                case 0: savedList
-                case 1: reactionList(type: .stay)
-                case 2: reactionList(type: .swipe)
-                default: EmptyView()
+                ScrollView {
+                    switch selectedTab {
+                    case 0: savedList
+                    case 1: reactionList(type: .stay)
+                    case 2: reactionList(type: .swipe)
+                    default: EmptyView()
+                    }
                 }
             }
         }
@@ -105,7 +119,15 @@ struct SavedHooksView: View {
                 .frame(width: 50, height: 50)
                 .overlay(
                     Group {
-                        if hook.kind == .link {
+                        if subtitle.contains("stayed") {
+                            Image(systemName: "checkmark")
+                                .font(.title3.bold())
+                                .foregroundColor(HPColor.backgroundDark)
+                        } else if subtitle.contains("swiped") {
+                            Image(systemName: "xmark")
+                                .font(.title3.bold())
+                                .foregroundColor(HPColor.backgroundDark)
+                        } else if hook.kind == .link {
                             IGStyleIcon(size: 24, color: HPColor.backgroundDark)
                         } else {
                             Image(systemName: "text.alignleft")
@@ -114,7 +136,7 @@ struct SavedHooksView: View {
                     }
                 )
             VStack(alignment: .leading, spacing: 4) {
-                Text(hook.textContent ?? hook.linkURL?.replacingOccurrences(of: "https://www.instagram.com/", with: "ig/") ?? "Hook")
+                Text(hook.textContent ?? "added by \(hook.authorDisplayName)")
                     .font(HPFont.body)
                     .foregroundColor(HPColor.backgroundDark)
                     .lineLimit(2)

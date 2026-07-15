@@ -12,6 +12,7 @@ struct HookDetailView: View {
     let hook: Hook
     @EnvironmentObject private var store: HookStore
     @EnvironmentObject private var session: UserSession
+    @EnvironmentObject private var reactionStore: ReactionStore
     @State private var isEditing = false
     @State private var editText: String = ""
     @State private var showClaimInput = false
@@ -60,18 +61,35 @@ struct HookDetailView: View {
                     metricsSection(metrics)
                 }
 
-                // AI Insight
-                aiInsightSection
+                // AI description
+                if let summary = hook.aiSummary {
+                    Text(summary)
+                        .font(HPFont.body)
+                        .foregroundColor(.white.opacity(0.9))
+                        .padding(14)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.white.opacity(0.15))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                } else if hook.metrics != nil {
+                    Text(AIInsightEngine.generateInsight(for: hook))
+                        .font(HPFont.body)
+                        .foregroundColor(.white.opacity(0.9))
+                        .padding(14)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.white.opacity(0.15))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
 
                 // Claim + Skip Rate (for existing hooks only)
                 if hook.source == .existing {
                     claimSection
                 }
 
-                // Stay/Swipe only for test hooks, not existing reels
+                // Static reaction counts for test hooks (not interactive)
                 if hook.source == .testNew {
                     Divider()
-                    ReactionBarView(hookID: hook.id)
+                    staticReactionCounts
+                    communityFeedbackSection
                 }
 
                 Spacer()
@@ -212,28 +230,65 @@ struct HookDetailView: View {
         return "\(n)"
     }
 
-    // MARK: - AI Insight
+    // MARK: - AI Insight (removed label, kept in body)
 
-    private var aiInsightSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 6) {
-                Image(systemName: "sparkles")
-                    .foregroundColor(.white)
-                Text("AI Insight")
-                    .font(HPFont.heading)
-                    .foregroundColor(.white)
+    // MARK: - Static reaction counts (non-interactive)
+
+    private var staticReactionCounts: some View {
+        HStack(spacing: 20) {
+            VStack(spacing: 4) {
+                Text("STAY").font(HPFont.subheading)
+                Text("\(reactionStore.stayCount(for: hook.id))").font(HPFont.caption)
             }
-            Text(AIInsightEngine.generateInsight(for: hook))
-                .font(HPFont.body)
-                .foregroundColor(.white.opacity(0.9))
-                .padding(14)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color.white.opacity(0.15))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+            .foregroundColor(HPColor.backgroundDark)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .background(Color.white)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+
+            VStack(spacing: 4) {
+                Text("SWIPE").font(HPFont.subheading)
+                Text("\(reactionStore.swipeCount(for: hook.id))").font(HPFont.caption)
+            }
+            .foregroundColor(HPColor.backgroundDark)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .background(Color.white)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
         }
     }
 
-    // MARK: - Claim + Skip Rate
+    private var communityFeedbackSection: some View {
+        let entries = reactionStore.feedbackEntries(for: hook.id)
+        return Group {
+            if !entries.isEmpty {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Community Feedback")
+                        .font(HPFont.heading)
+                        .foregroundColor(.white)
+                    ForEach(entries) { entry in
+                        HStack(alignment: .top, spacing: 8) {
+                            Text(entry.type == .stay ? "✓" : "✗")
+                                .font(HPFont.subheading)
+                                .foregroundColor(HPColor.backgroundDark)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(entry.authorDisplayName)
+                                    .font(HPFont.caption)
+                                    .foregroundColor(HPColor.backgroundDark)
+                                Text(entry.feedback ?? "")
+                                    .font(HPFont.body)
+                                    .foregroundColor(HPColor.textDark)
+                            }
+                        }
+                        .padding(10)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.white.opacity(0.9))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+                }
+            }
+        }
+    }
 
     private var claimSection: some View {
         VStack(alignment: .leading, spacing: 10) {

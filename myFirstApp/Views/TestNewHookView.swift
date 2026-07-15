@@ -36,6 +36,10 @@ struct TestNewHookView: View {
                 }
                 .pickerStyle(.segmented)
 
+                Text("Instagram recommends keeping hooks under 75 characters. Use multiple clips in the first few seconds or a stop-motion frame to grab attention instantly.")
+                    .font(HPFont.caption)
+                    .foregroundColor(.white.opacity(0.7))
+
                 contentField
 
                 Button("TEST") { save() }
