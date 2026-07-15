@@ -43,13 +43,21 @@ struct ReactionBarView: View {
     }
 
     private func reactionButton(type: ReactionType, label: String, count: Int) -> some View {
-        Button {
-            guard session.isSignedIn, !alreadyReacted else { return }
-            reactionStore.add(Reaction(
-                id: UUID(), hookID: hookID, type: type,
-                feedback: nil, authorDisplayName: session.displayName, createdAt: Date()
-            ))
-            justReacted = type
+        let isSelected = justReacted == type || (justReacted == nil && alreadyReacted && currentReaction == type)
+
+        return Button {
+            guard session.isSignedIn else { return }
+            if alreadyReacted || justReacted != nil {
+                // Toggle: switch to the other reaction
+                reactionStore.switchReaction(hookID: hookID, author: session.displayName, to: type)
+                justReacted = type
+            } else {
+                reactionStore.add(Reaction(
+                    id: UUID(), hookID: hookID, type: type,
+                    feedback: nil, authorDisplayName: session.displayName, createdAt: Date()
+                ))
+                justReacted = type
+            }
             showFeedbackField = true
         } label: {
             VStack(spacing: 6) {
@@ -59,11 +67,15 @@ struct ReactionBarView: View {
             .foregroundColor(HPColor.backgroundDark)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)
-            .background(alreadyReacted || justReacted != nil ? Color.white.opacity(0.5) : Color.white)
+            .background(isSelected ? HPColor.background.opacity(0.5) : Color.white)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
-        .disabled(alreadyReacted || justReacted != nil)
         .buttonStyle(.plain)
+    }
+
+    private var currentReaction: ReactionType? {
+        reactionStore.reactions(for: hookID)
+            .first(where: { $0.authorDisplayName == session.displayName })?.type
     }
 
     private var feedbackSection: some View {

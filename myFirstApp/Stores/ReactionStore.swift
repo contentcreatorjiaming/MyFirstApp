@@ -38,6 +38,23 @@ final class ReactionStore: ObservableObject {
         }
     }
 
+    /// Switches a user's reaction from one type to another.
+    func switchReaction(hookID: UUID, author: String, to newType: ReactionType) {
+        if let index = reactions.lastIndex(where: {
+            $0.hookID == hookID && $0.authorDisplayName == author
+        }) {
+            reactions[index] = Reaction(
+                id: reactions[index].id,
+                hookID: hookID,
+                type: newType,
+                feedback: reactions[index].feedback,
+                authorDisplayName: author,
+                createdAt: reactions[index].createdAt
+            )
+            save()
+        }
+    }
+
     /// All reactions for a specific hook.
     func reactions(for hookID: UUID) -> [Reaction] {
         reactions.filter { $0.hookID == hookID }

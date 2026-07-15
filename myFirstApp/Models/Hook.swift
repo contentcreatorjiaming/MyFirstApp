@@ -42,5 +42,6 @@ struct Hook: Identifiable, Codable, Equatable {
 
     var metrics: HookMetrics?     // present only for .existing
     var createdAt: Date
+    var datePosted: Date?          // when originally posted (for existing hooks)
     var authorDisplayName: String
 }

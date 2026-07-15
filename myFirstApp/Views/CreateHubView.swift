@@ -19,7 +19,7 @@ struct CreateHubView: View {
                     NavigationLink {
                         AddExistingHookView()
                     } label: {
-                        Text("ADD\nEXISTING")
+                        Text("ADD")
                             .multilineTextAlignment(.center)
                     }
                     .buttonStyle(HPButtonStyle(color: HPColor.pastelPink, fullWidth: true))
@@ -27,7 +27,7 @@ struct CreateHubView: View {
                     NavigationLink {
                         TestNewHookView()
                     } label: {
-                        Text("TEST\nNEW")
+                        Text("TEST")
                             .multilineTextAlignment(.center)
                     }
                     .buttonStyle(HPButtonStyle(color: HPColor.pastelBlue, fullWidth: true))
