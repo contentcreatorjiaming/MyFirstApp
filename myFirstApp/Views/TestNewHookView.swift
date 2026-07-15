@@ -171,7 +171,8 @@ struct TestNewHookView: View {
             metrics: nil,
             createdAt: Date(),
             datePosted: nil,
-            authorDisplayName: session.displayName
+            authorDisplayName: session.displayName,
+            aiSummary: nil, skipRate: nil, claimedBy: nil
         )
         store.add(hook)
         navigateToTestHooks = true

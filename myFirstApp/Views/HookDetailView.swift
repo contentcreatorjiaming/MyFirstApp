@@ -14,6 +14,8 @@ struct HookDetailView: View {
     @EnvironmentObject private var session: UserSession
     @State private var isEditing = false
     @State private var editText: String = ""
+    @State private var showClaimInput = false
+    @State private var skipRateInput: String = ""
 
     private var isOwnHook: Bool {
         session.isSignedIn && hook.authorDisplayName == session.displayName
@@ -56,6 +58,14 @@ struct HookDetailView: View {
 
                 if let metrics = hook.metrics {
                     metricsSection(metrics)
+                }
+
+                // AI Insight
+                aiInsightSection
+
+                // Claim + Skip Rate (for existing hooks only)
+                if hook.source == .existing {
+                    claimSection
                 }
 
                 // Stay/Swipe only for test hooks, not existing reels
@@ -198,6 +208,92 @@ struct HookDetailView: View {
         if n >= 1_000 { return String(format: "%.1fK", Double(n) / 1_000) }
         return "\(n)"
     }
+
+    // MARK: - AI Insight
+
+    private var aiInsightSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 6) {
+                Image(systemName: "sparkles")
+                    .foregroundColor(.white)
+                Text("AI Insight")
+                    .font(HPFont.heading)
+                    .foregroundColor(.white)
+            }
+            Text(AIInsightEngine.generateInsight(for: hook))
+                .font(HPFont.body)
+                .foregroundColor(.white.opacity(0.9))
+                .padding(14)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.white.opacity(0.15))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+    }
+
+    // MARK: - Claim + Skip Rate
+
+    private var claimSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            if let claimed = hook.claimedBy {
+                HStack(spacing: 8) {
+                    Image(systemName: "person.badge.shield.checkmark")
+                        .foregroundColor(.white)
+                    Text("Claimed by \(claimed)")
+                        .font(HPFont.subheading)
+                        .foregroundColor(.white)
+                }
+                if let rate = hook.skipRate {
+                    HStack(spacing: 8) {
+                        Image(systemName: "chart.line.downtrend.xyaxis")
+                            .foregroundColor(.white)
+                        Text("Skip rate: \(String(format: "%.0f", rate))%")
+                            .font(HPFont.heading)
+                            .foregroundColor(.white)
+                    }
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.white.opacity(0.15))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+            } else if session.isSignedIn {
+                if showClaimInput {
+                    VStack(spacing: 10) {
+                        Text("Add your skip rate for this reel")
+                            .font(HPFont.body)
+                            .foregroundColor(.white)
+                        HStack {
+                            TextField("e.g. 42", text: $skipRateInput)
+                                .font(HPFont.body)
+                                .padding(10)
+                                .background(Color.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .keyboardType(.decimalPad)
+                                .frame(width: 80)
+                            Text("%")
+                                .font(HPFont.body)
+                                .foregroundColor(.white)
+                            Spacer()
+                            Button("Save") {
+                                if let rate = Double(skipRateInput) {
+                                    store.claimHook(hookID: hook.id, by: session.displayName, skipRate: rate)
+                                    showClaimInput = false
+                                }
+                            }
+                            .buttonStyle(HPSecondaryButtonStyle())
+                        }
+                    }
+                } else {
+                    Button {
+                        showClaimInput = true
+                    } label: {
+                        Label("This is my reel — add skip rate", systemImage: "hand.raised")
+                            .font(HPFont.body)
+                    }
+                    .buttonStyle(HPSecondaryButtonStyle())
+                }
+            }
+        }
+    }
 }
 
 #Preview {
@@ -207,7 +303,8 @@ struct HookDetailView: View {
             linkURL: nil, textContent: "POV: you discovered the one productivity hack that works",
             imageFileName: nil, videoFileName: nil,
             metrics: HookMetrics(views: 145000, shares: 1300, likes: 8200, saves: 3100, reposts: 0, comments: 420),
-            createdAt: Date(), datePosted: nil, authorDisplayName: "creator_jane"
+            createdAt: Date(), datePosted: nil, authorDisplayName: "creator_jane",
+            aiSummary: nil, skipRate: nil, claimedBy: nil
         ))
         .environmentObject(HookStore())
         .environmentObject(ReactionStore())

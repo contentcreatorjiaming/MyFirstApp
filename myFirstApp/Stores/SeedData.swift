@@ -38,7 +38,8 @@ enum SeedData {
             id: UUID(), source: .testNew, kind: .text,
             linkURL: nil, textContent: text, imageFileName: nil, videoFileName: nil,
             metrics: nil, createdAt: d(7, 14, 2026), datePosted: nil,
-            authorDisplayName: author
+            authorDisplayName: author,
+            aiSummary: nil, skipRate: nil, claimedBy: nil
         )
     }
 
@@ -85,7 +86,8 @@ enum SeedData {
             linkURL: url, textContent: nil, imageFileName: nil, videoFileName: nil,
             metrics: HookMetrics(views: v, shares: sh, likes: l, saves: sv, reposts: r, comments: c),
             createdAt: added, datePosted: posted,
-            authorDisplayName: creators[i]
+            authorDisplayName: creators[i],
+            aiSummary: nil, skipRate: nil, claimedBy: nil
         )
     }
 }
