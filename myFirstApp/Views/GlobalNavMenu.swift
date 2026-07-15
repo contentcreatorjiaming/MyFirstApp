@@ -84,6 +84,21 @@ private struct NavMenuOverlay: View {
                         } label: {
                             menuLabel("SAVED HOOKS")
                         }
+
+                        NavigationLink {
+                            FeedbackView()
+                        } label: {
+                            menuLabel("FEEDBACK")
+                        }
+
+                        if session.isSignedIn {
+                            Button {
+                                session.signOut()
+                                isPresented = false
+                            } label: {
+                                menuLabel("SIGN OUT")
+                            }
+                        }
                     }
 
                     Spacer()

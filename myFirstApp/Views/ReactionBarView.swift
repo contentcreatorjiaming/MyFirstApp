@@ -84,7 +84,7 @@ struct ReactionBarView: View {
                 .font(HPFont.subheading)
                 .foregroundColor(.white)
             HStack {
-                TextField("leave a message", text: $feedbackText)
+                TextField("leave an optional message", text: $feedbackText)
                     .font(HPFont.body)
                     .padding(12)
                     .background(Color.white)

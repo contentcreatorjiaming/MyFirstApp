@@ -23,10 +23,11 @@ enum HookSource: String, Codable {
 
 struct HookMetrics: Codable, Equatable {
     var views: Int
-    var likes: Int
     var shares: Int
-    var comments: Int
+    var likes: Int
     var saves: Int
+    var reposts: Int
+    var comments: Int
 }
 
 struct Hook: Identifiable, Codable, Equatable {

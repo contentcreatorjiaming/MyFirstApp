@@ -146,7 +146,7 @@ struct AddLinkHookView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                Text("Paste your content link")
+                Text("Paste content link")
                     .font(HPFont.heading)
                     .foregroundColor(.white)
 
@@ -209,9 +209,9 @@ struct AddLinkHookView: View {
 
     private func save() {
         let metrics = HookMetrics(
-            views: Int(views) ?? 0, likes: Int(likes) ?? 0,
-            shares: Int(shares) ?? 0, comments: Int(comments) ?? 0,
-            saves: Int(saves) ?? 0
+            views: Int(views) ?? 0, shares: Int(shares) ?? 0,
+            likes: Int(likes) ?? 0, saves: Int(saves) ?? 0,
+            reposts: 0, comments: Int(comments) ?? 0
         )
         let hook = Hook(
             id: UUID(), source: .existing, kind: .link,

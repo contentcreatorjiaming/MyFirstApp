@@ -34,6 +34,11 @@ final class HookStore: ObservableObject {
         save()
     }
 
+    func clearExistingSeeded() {
+        hooks.removeAll(where: { $0.source == .existing })
+        save()
+    }
+
     /// Saves a UIImage's data into the app's documents directory and returns
     /// the filename to store on the Hook. Keeps images out of the JSON blob.
     func saveImage(_ data: Data) -> String {
