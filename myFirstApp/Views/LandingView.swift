@@ -2,8 +2,8 @@
 //  LandingView.swift
 //  myFirstApp
 //
-//  Landing screen: tappable "hook playground" title that expands into
-//  a navigation menu (Research / Create / Saved Hooks).
+//  Landing: tappable "hook playground" title with Research/Create buttons
+//  visible. Tapping title expands the full nav menu.
 //
 
 import SwiftUI
@@ -29,11 +29,18 @@ struct LandingView: View {
         }
     }
 
-    // MARK: - Collapsed: big centered title, tap to open
+    // MARK: - Collapsed: title + two buttons
 
     private var collapsedLayout: some View {
-        VStack {
+        VStack(spacing: 36) {
             Spacer()
+
+            // Username banner if signed in
+            if session.isSignedIn {
+                Text("\(session.displayName)'s")
+                    .font(HPFont.brandRegular(size: 20))
+                    .foregroundColor(.white.opacity(0.85))
+            }
 
             Button {
                 menuOpen = true
@@ -48,16 +55,40 @@ struct LandingView: View {
             }
             .buttonStyle(.plain)
 
+            // Research + Create buttons
+            HStack(spacing: 16) {
+                NavigationLink {
+                    ResearchGridView()
+                } label: {
+                    Text("RESEARCH")
+                }
+                .buttonStyle(HPButtonStyle(color: HPColor.pastelPink))
+
+                NavigationLink {
+                    SignInGateView()
+                } label: {
+                    Text("CREATE")
+                }
+                .buttonStyle(HPButtonStyle(color: HPColor.pastelBlue))
+            }
+            .padding(.horizontal, 32)
+
             Spacer()
             Spacer()
         }
     }
 
-    // MARK: - Expanded: small title at top, menu below
+    // MARK: - Expanded: small title at top, full menu
 
     private var expandedLayout: some View {
         VStack(spacing: 0) {
-            // Small title at top — tap to collapse
+            if session.isSignedIn {
+                Text("\(session.displayName)'s")
+                    .font(HPFont.brandRegular(size: 14))
+                    .foregroundColor(.white.opacity(0.7))
+                    .padding(.top, 55)
+            }
+
             Button {
                 menuOpen = false
             } label: {
@@ -70,11 +101,10 @@ struct LandingView: View {
                 .foregroundColor(.white.opacity(0.85))
             }
             .buttonStyle(.plain)
-            .padding(.top, 60)
+            .padding(.top, session.isSignedIn ? 4 : 60)
 
             Spacer()
 
-            // Menu options
             VStack(spacing: 28) {
                 NavigationLink {
                     ResearchGridView()

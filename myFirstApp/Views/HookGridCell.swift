@@ -30,7 +30,7 @@ struct HookGridCell: View {
                         .foregroundColor(.white)
                         .padding(.horizontal, 4)
                         .padding(.vertical, 2)
-                        .background(HPColor.coral)
+                        .background(HPColor.pastelPink)
                         .clipShape(RoundedRectangle(cornerRadius: 3))
                 }
             }
@@ -57,7 +57,7 @@ struct HookGridCell: View {
             }
         case .text:
             ZStack {
-                HPColor.forest.opacity(0.15)
+                HPColor.backgroundDark.opacity(0.15)
                 Text(hook.textContent ?? "")
                     .font(.caption2)
                     .lineLimit(4)
@@ -66,14 +66,14 @@ struct HookGridCell: View {
             }
         case .link:
             ZStack {
-                HPColor.sky.opacity(0.12)
+                HPColor.pastelBlue.opacity(0.12)
                 VStack(spacing: 4) {
                     Text("🔗")
                         .font(.title3)
                     Text(hook.linkURL ?? "")
                         .font(.system(size: 9))
                         .lineLimit(2)
-                        .foregroundColor(HPColor.sky)
+                        .foregroundColor(HPColor.pastelBlue)
                         .padding(.horizontal, 6)
                 }
             }

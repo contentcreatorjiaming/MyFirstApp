@@ -19,7 +19,7 @@ struct SavedConfirmationView: View {
                 VStack(spacing: 8) {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 48))
-                        .foregroundColor(HPColor.forest)
+                        .foregroundColor(HPColor.backgroundDark)
                     Text("Hook Saved")
                         .font(HPFont.heading)
                 }
@@ -37,7 +37,7 @@ struct SavedConfirmationView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
-                        .foregroundColor(HPColor.forest)
+                        .foregroundColor(HPColor.backgroundDark)
                 }
             }
         }
@@ -50,12 +50,12 @@ private struct HookThumbnail: View {
     var body: some View {
         VStack(spacing: 6) {
             RoundedRectangle(cornerRadius: 10)
-                .fill(HPColor.forestLight)
+                .fill(HPColor.cardBg)
                 .frame(height: 80)
                 .overlay(
                     Image(systemName: iconName)
                         .font(.title2)
-                        .foregroundColor(HPColor.forest)
+                        .foregroundColor(HPColor.backgroundDark)
                 )
             Text(hook.source == .existing ? "Existing" : "Test")
                 .font(HPFont.caption)

@@ -36,6 +36,8 @@ struct ResearchGridView: View {
         }
         .navigationTitle("Research")
         .navigationBarTitleDisplayMode(.inline)
+        .background(HPColor.background)
+        .toolbarBackground(HPColor.background, for: .navigationBar)
     }
 
     private var emptyState: some View {

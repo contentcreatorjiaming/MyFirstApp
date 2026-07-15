@@ -38,7 +38,7 @@ struct TestNewHookView: View {
                     .foregroundColor(.secondary)
 
                 Button("SAVE") { save() }
-                    .buttonStyle(HPButtonStyle(color: HPColor.forest, fullWidth: true))
+                    .buttonStyle(HPButtonStyle(color: HPColor.backgroundDark, fullWidth: true))
                     .disabled(!isValid)
                     .opacity(isValid ? 1 : 0.5)
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -46,6 +46,8 @@ struct TestNewHookView: View {
             .padding()
         }
         .navigationTitle("Test New")
+        .background(HPColor.background)
+        .toolbarBackground(HPColor.background, for: .navigationBar)
         .sheet(isPresented: $showSavedConfirmation) {
             SavedConfirmationView()
         }

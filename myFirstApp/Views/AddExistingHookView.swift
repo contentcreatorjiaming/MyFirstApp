@@ -52,13 +52,15 @@ struct AddExistingHookView: View {
                 metricField("Saves", text: $saves, icon: "bookmark.fill")
 
                 Button("SAVE") { save() }
-                    .buttonStyle(HPButtonStyle(color: HPColor.forest, fullWidth: true))
+                    .buttonStyle(HPButtonStyle(color: HPColor.backgroundDark, fullWidth: true))
                     .disabled(!isValid)
                     .opacity(isValid ? 1 : 0.5)
             }
             .padding()
         }
         .navigationTitle("Add Existing")
+        .background(HPColor.background)
+        .toolbarBackground(HPColor.background, for: .navigationBar)
         .sheet(isPresented: $showSavedConfirmation) {
             SavedConfirmationView()
         }
@@ -109,7 +111,7 @@ struct AddExistingHookView: View {
     private func metricField(_ label: String, text: Binding<String>, icon: String) -> some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
-                .foregroundColor(HPColor.forest)
+                .foregroundColor(HPColor.backgroundDark)
                 .frame(width: 24)
             Text(label)
                 .font(HPFont.subheading)

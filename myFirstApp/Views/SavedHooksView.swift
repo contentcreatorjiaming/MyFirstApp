@@ -40,6 +40,8 @@ struct SavedHooksView: View {
             }
         }
         .navigationTitle("Saved Hooks")
+        .background(HPColor.background)
+        .toolbarBackground(HPColor.background, for: .navigationBar)
         .navigationBarTitleDisplayMode(.inline)
     }
 

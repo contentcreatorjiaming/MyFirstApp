@@ -2,7 +2,7 @@
 //  CreateHubView.swift
 //  myFirstApp
 //
-//  Post-sign-in hub: Add Existing vs Test New.
+//  Post-sign-in hub: Add Existing vs Test New, side by side.
 //
 
 import SwiftUI
@@ -13,27 +13,32 @@ struct CreateHubView: View {
             HPGradientBackground()
 
             VStack(spacing: 36) {
-                Text("hook\nplayground")
-                    .font(HPFont.screenTitle)
-                    .multilineTextAlignment(.center)
-                    .foregroundColor(.white)
+                VStack(spacing: 0) {
+                    Text("hook")
+                        .font(HPFont.screenTitle)
+                    Text("playground")
+                        .font(HPFont.screenTitle)
+                }
+                .foregroundColor(.white)
 
-                VStack(spacing: 14) {
+                HStack(spacing: 14) {
                     NavigationLink {
                         AddExistingHookView()
                     } label: {
-                        Text("ADD EXISTING")
+                        Text("ADD\nEXISTING")
+                            .multilineTextAlignment(.center)
                     }
-                    .buttonStyle(HPButtonStyle(color: HPColor.sky, fullWidth: true))
+                    .buttonStyle(HPButtonStyle(color: HPColor.pastelPink, fullWidth: true))
 
                     NavigationLink {
                         TestNewHookView()
                     } label: {
-                        Text("TEST NEW")
+                        Text("TEST\nNEW")
+                            .multilineTextAlignment(.center)
                     }
-                    .buttonStyle(HPButtonStyle(color: HPColor.coral, fullWidth: true))
+                    .buttonStyle(HPButtonStyle(color: HPColor.pastelBlue, fullWidth: true))
                 }
-                .padding(.horizontal, 40)
+                .padding(.horizontal, 32)
             }
         }
     }

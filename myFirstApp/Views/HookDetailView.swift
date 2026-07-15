@@ -32,6 +32,8 @@ struct HookDetailView: View {
             .padding()
         }
         .navigationTitle("Hook Detail")
+        .background(HPColor.background)
+        .toolbarBackground(HPColor.background, for: .navigationBar)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -57,7 +59,7 @@ struct HookDetailView: View {
                 .foregroundColor(.white)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 5)
-                .background(hook.source == .existing ? HPColor.forest : HPColor.coral)
+                .background(hook.source == .existing ? HPColor.backgroundDark : HPColor.pastelPink)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
     }
@@ -65,14 +67,14 @@ struct HookDetailView: View {
     private var untestedBadge: some View {
         HStack(spacing: 8) {
             Image(systemName: "flask")
-                .foregroundColor(HPColor.coral)
+                .foregroundColor(HPColor.pastelPink)
             Text("This hook hasn't been posted yet — no performance data. Submit it for community feedback!")
                 .font(HPFont.caption)
                 .foregroundColor(HPColor.textSecondary)
         }
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(HPColor.coral.opacity(0.08))
+        .background(HPColor.pastelPink.opacity(0.08))
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
@@ -97,15 +99,15 @@ struct HookDetailView: View {
         case .link:
             HStack(spacing: 10) {
                 Image(systemName: "link")
-                    .foregroundColor(HPColor.sky)
+                    .foregroundColor(HPColor.pastelBlue)
                 Text(hook.linkURL ?? "")
                     .font(HPFont.body)
-                    .foregroundColor(HPColor.sky)
+                    .foregroundColor(HPColor.pastelBlue)
                     .lineLimit(2)
             }
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(HPColor.sky.opacity(0.08))
+            .background(HPColor.pastelBlue.opacity(0.08))
             .clipShape(RoundedRectangle(cornerRadius: 14))
         }
     }
@@ -133,7 +135,7 @@ struct HookDetailView: View {
         VStack(spacing: 6) {
             Image(systemName: icon)
                 .font(.body)
-                .foregroundColor(HPColor.forest)
+                .foregroundColor(HPColor.backgroundDark)
             Text(formatNumber(value))
                 .font(HPFont.metric)
                 .foregroundColor(HPColor.textPrimary)
@@ -143,7 +145,7 @@ struct HookDetailView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 14)
-        .background(HPColor.forestLight)
+        .background(HPColor.cardBg)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
