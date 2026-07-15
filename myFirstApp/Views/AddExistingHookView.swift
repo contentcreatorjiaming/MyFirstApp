@@ -2,13 +2,136 @@
 //  AddExistingHookView.swift
 //  myFirstApp
 //
-//  "Add Existing" flow: paste a link to existing content.
-//  Link-only for now — paste a URL and enter the real metrics.
+//  "Add" flow: user chooses between CLAIM (claim an existing reel as theirs)
+//  or ADD (paste a new link with metrics). The original link+metrics form
+//  is saved as AddExistingHookView_SAVED_V1.swift.bak for future reference.
 //
 
 import SwiftUI
 
 struct AddExistingHookView: View {
+    var body: some View {
+        ZStack {
+            HPGradientBackground()
+
+            VStack(spacing: 36) {
+                HookPlaygroundTitle(size: 28)
+
+                HStack(spacing: 14) {
+                    NavigationLink {
+                        ClaimHookView()
+                    } label: {
+                        Text("CLAIM")
+                    }
+                    .buttonStyle(HPButtonStyle(color: HPColor.pastelBlue))
+
+                    NavigationLink {
+                        AddLinkHookView()
+                    } label: {
+                        Text("ADD")
+                    }
+                    .buttonStyle(HPButtonStyle(color: HPColor.pastelPink))
+                }
+                .padding(.horizontal, 32)
+            }
+        }
+    }
+}
+
+// MARK: - Claim: select an existing reel from Explore and add skip rate
+
+struct ClaimHookView: View {
+    @EnvironmentObject private var store: HookStore
+    @EnvironmentObject private var session: UserSession
+
+    private var existingHooks: [Hook] {
+        store.hooks.filter { $0.source == .existing }
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 14) {
+                Text("Select a reel to claim as yours")
+                    .font(HPFont.heading)
+                    .foregroundColor(.white)
+
+                Text("Link your Instagram and claim a reel from the library. Add your skip rate data.")
+                    .font(HPFont.body)
+                    .foregroundColor(.white.opacity(0.7))
+
+                ForEach(existingHooks) { hook in
+                    if let url = hook.linkURL {
+                        ClaimCard(hook: hook, url: url)
+                    }
+                }
+            }
+            .padding()
+        }
+        .navigationTitle("")
+        .toolbar { ToolbarItem(placement: .principal) { HookPlaygroundTitle(size: 16) } }
+        .background(HPColor.background)
+        .toolbarBackground(HPColor.background, for: .navigationBar)
+    }
+}
+
+private struct ClaimCard: View {
+    let hook: Hook
+    let url: String
+    @State private var claimed = false
+    @State private var skipRate: String = ""
+
+    private var shortURL: String {
+        url.replacingOccurrences(of: "https://www.instagram.com/", with: "ig/")
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(shortURL)
+                .font(HPFont.caption)
+                .foregroundColor(HPColor.backgroundDark)
+
+            if let m = hook.metrics {
+                Text("\(formatNumber(m.views)) views")
+                    .font(HPFont.caption)
+                    .foregroundColor(HPColor.backgroundDark.opacity(0.6))
+            }
+
+            if claimed {
+                HStack {
+                    Text("Skip rate %")
+                        .font(HPFont.body)
+                        .foregroundColor(HPColor.backgroundDark)
+                    TextField("e.g. 42", text: $skipRate)
+                        .font(HPFont.body)
+                        .padding(8)
+                        .background(Color.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .keyboardType(.numberPad)
+                        .frame(width: 80)
+                }
+            } else {
+                Button("This is mine") {
+                    claimed = true
+                }
+                .buttonStyle(HPSecondaryButtonStyle())
+            }
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.white.opacity(0.92))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    private func formatNumber(_ n: Int) -> String {
+        if n >= 1_000_000 { return String(format: "%.1fM", Double(n) / 1_000_000) }
+        if n >= 1_000 { return String(format: "%.1fK", Double(n) / 1_000) }
+        return "\(n)"
+    }
+}
+
+// MARK: - Add: paste link + metrics (original flow)
+
+struct AddLinkHookView: View {
     @EnvironmentObject private var session: UserSession
     @EnvironmentObject private var store: HookStore
 
@@ -46,7 +169,7 @@ struct AddExistingHookView: View {
                 metricField("Saves", text: $saves, icon: "bookmark.fill")
 
                 Button("SAVE") { save() }
-                    .buttonStyle(HPButtonStyle(color: HPColor.pastelBlue, fullWidth: true))
+                    .buttonStyle(HPSecondaryButtonStyle())
                     .disabled(!isValid)
                     .opacity(isValid ? 1 : 0.5)
             }
@@ -94,19 +217,10 @@ struct AddExistingHookView: View {
             id: UUID(), source: .existing, kind: .link,
             linkURL: linkURL, textContent: nil,
             imageFileName: nil, videoFileName: nil,
-            metrics: metrics, createdAt: Date(),
-            datePosted: nil,
+            metrics: metrics, createdAt: Date(), datePosted: nil,
             authorDisplayName: session.displayName
         )
         store.add(hook)
         showSavedConfirmation = true
-    }
-}
-
-#Preview {
-    NavigationStack {
-        AddExistingHookView()
-            .environmentObject(UserSession())
-            .environmentObject(HookStore())
     }
 }

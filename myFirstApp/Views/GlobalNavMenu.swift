@@ -74,6 +74,12 @@ private struct NavMenuOverlay: View {
                         }
 
                         NavigationLink {
+                            TestHooksPageView()
+                        } label: {
+                            menuLabel("TEST HOOKS")
+                        }
+
+                        NavigationLink {
                             SavedHooksView()
                         } label: {
                             menuLabel("SAVED HOOKS")

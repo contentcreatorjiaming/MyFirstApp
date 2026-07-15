@@ -11,13 +11,17 @@ import SwiftUI
 struct ResearchGridView: View {
     @EnvironmentObject private var store: HookStore
 
+    private var existingHooks: [Hook] {
+        store.hooks.filter { $0.source == .existing }
+    }
+
     var body: some View {
         ScrollView {
-            if store.hooks.isEmpty {
+            if existingHooks.isEmpty {
                 emptyState
             } else {
                 LazyVStack(spacing: 14) {
-                    ForEach(store.hooks) { hook in
+                    ForEach(existingHooks) { hook in
                         ResearchCard(hook: hook)
                     }
                 }

@@ -21,6 +21,7 @@ struct TestNewHookView: View {
     @State private var videoItem: PhotosPickerItem?
     @State private var showCamera = false
     @State private var showSavedConfirmation = false
+    @State private var navigateToTestHooks = false
     @State private var videoError: String?
 
     private let textCharacterLimit = 75
@@ -37,8 +38,8 @@ struct TestNewHookView: View {
 
                 contentField
 
-                Button("SAVE") { save() }
-                    .buttonStyle(HPButtonStyle(color: HPColor.pastelPink, fullWidth: true))
+                Button("TEST") { save() }
+                    .buttonStyle(HPSecondaryButtonStyle())
                     .disabled(!isValid)
                     .opacity(isValid ? 1 : 0.5)
             }
@@ -48,8 +49,8 @@ struct TestNewHookView: View {
         .toolbar { ToolbarItem(placement: .principal) { HookPlaygroundTitle(size: 16) } }
         .background(HPColor.background)
         .toolbarBackground(HPColor.background, for: .navigationBar)
-        .sheet(isPresented: $showSavedConfirmation) {
-            SavedConfirmationView()
+        .navigationDestination(isPresented: $navigateToTestHooks) {
+            TestHooksPageView()
         }
         .fullScreenCover(isPresented: $showCamera) {
             VideoCaptureView(videoURL: $videoURL, maxDuration: maxVideoDuration)
@@ -173,6 +174,6 @@ struct TestNewHookView: View {
             authorDisplayName: session.displayName
         )
         store.add(hook)
-        showSavedConfirmation = true
+        navigateToTestHooks = true
     }
 }
