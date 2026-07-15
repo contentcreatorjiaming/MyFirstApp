@@ -33,6 +33,44 @@ enum SeedData {
         }
     }
 
+    /// Seeds mock community reactions with feedback on test hooks.
+    static func seedTestFeedback(store: HookStore, reactionStore: ReactionStore) {
+        let testHooks = store.hooks.filter { $0.source == .testNew }
+        guard !testHooks.isEmpty else { return }
+        // Only seed once
+        let feedbackKey = "hasSeededTestFeedback_v1"
+        guard !UserDefaults.standard.bool(forKey: feedbackKey) else { return }
+
+        let names = ["alex_creates", "maya.hooks", "contentjay", "reelqueen", "viral.vee", "hookmaster"]
+        let feedbacks: [(ReactionType, String)] = [
+            (.stay, "This makes me want to see what comes next"),
+            (.swipe, "Too vague — give me a reason to care in the first 2 words"),
+            (.stay, "Strong curiosity gap, I'd watch the whole thing"),
+            (.swipe, "Feels like every other hook I've seen today"),
+            (.stay, "The confidence in this hook is what sells it"),
+            (.swipe, "Needs a visual to match the energy of the text"),
+            (.stay, "Short and punchy — exactly what works"),
+            (.swipe, "Would scroll past, but only because I've seen similar"),
+            (.stay, "This would stop my scroll for sure"),
+            (.swipe, "Try leading with a number or a bold claim"),
+        ]
+
+        for hook in testHooks {
+            let count = Int.random(in: 2...4)
+            for i in 0..<count {
+                let fb = feedbacks[Int.random(in: 0..<feedbacks.count)]
+                let reaction = Reaction(
+                    id: UUID(), hookID: hook.id, type: fb.0,
+                    feedback: fb.1,
+                    authorDisplayName: names[i % names.count],
+                    createdAt: Date().addingTimeInterval(-Double.random(in: 3600...86400 * 3))
+                )
+                reactionStore.add(reaction)
+            }
+        }
+        UserDefaults.standard.set(true, forKey: feedbackKey)
+    }
+
     private static func testHook(_ text: String, by author: String) -> Hook {
         Hook(
             id: UUID(), source: .testNew, kind: .text,

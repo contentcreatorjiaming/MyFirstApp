@@ -28,6 +28,7 @@ struct myFirstAppApp: App {
                 .onAppear {
                     SeedData.seedIfNeeded(store: hookStore)
                     reactionStore.seedMockReactions(for: hookStore.hooks.map(\.id))
+                    SeedData.seedTestFeedback(store: hookStore, reactionStore: reactionStore)
                 }
         }
     }
