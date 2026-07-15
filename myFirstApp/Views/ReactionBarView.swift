@@ -100,17 +100,25 @@ struct ReactionBarView: View {
                 .font(HPFont.heading)
                 .foregroundColor(.white)
             ForEach(entries) { entry in
-                HStack(alignment: .top, spacing: 8) {
-                    Text(entry.type == .stay ? "✓" : "✗")
-                        .font(HPFont.subheading)
-                        .foregroundColor(HPColor.backgroundDark)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(entry.authorDisplayName)
-                            .font(HPFont.caption)
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(alignment: .top, spacing: 8) {
+                        Text(entry.type == .stay ? "✓" : "✗")
+                            .font(HPFont.subheading)
                             .foregroundColor(HPColor.backgroundDark)
-                        Text(entry.feedback ?? "")
-                            .font(HPFont.body)
-                            .foregroundColor(HPColor.textDark)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(entry.authorDisplayName)
+                                .font(HPFont.caption)
+                                .foregroundColor(HPColor.backgroundDark)
+                            Text(entry.feedback ?? "")
+                                .font(HPFont.body)
+                                .foregroundColor(HPColor.textDark)
+                        }
+                        Spacer()
+                    }
+
+                    // Reply button
+                    if session.isSignedIn {
+                        ReplyButton(hookID: hookID, parentAuthor: entry.authorDisplayName)
                     }
                 }
                 .padding(10)
@@ -128,5 +136,50 @@ struct ReactionBarView: View {
         reactionStore.updateFeedback(for: hookID, author: session.displayName, feedback: trimmed)
         feedbackText = ""
         showFeedbackField = false
+    }
+}
+
+// MARK: - Reply button on feedback
+
+struct ReplyButton: View {
+    let hookID: UUID
+    let parentAuthor: String
+    @EnvironmentObject private var reactionStore: ReactionStore
+    @EnvironmentObject private var session: UserSession
+    @State private var showReply = false
+    @State private var replyText = ""
+
+    var body: some View {
+        if showReply {
+            HStack {
+                TextField("follow up", text: $replyText)
+                    .font(HPFont.caption)
+                    .padding(8)
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                Button("Reply") {
+                    if !replyText.trimmingCharacters(in: .whitespaces).isEmpty {
+                        let reply = Reaction(
+                            id: UUID(), hookID: hookID, type: .stay,
+                            feedback: "↳ @\(parentAuthor): \(replyText)",
+                            authorDisplayName: session.displayName, createdAt: Date()
+                        )
+                        reactionStore.add(reply)
+                        replyText = ""
+                        showReply = false
+                    }
+                }
+                .font(HPFont.caption)
+                .foregroundColor(HPColor.backgroundDark)
+            }
+        } else {
+            Button {
+                showReply = true
+            } label: {
+                Text("reply")
+                    .font(HPFont.caption)
+                    .foregroundColor(HPColor.backgroundDark.opacity(0.5))
+            }
+        }
     }
 }
