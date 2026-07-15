@@ -35,13 +35,6 @@ struct LandingView: View {
         VStack(spacing: 36) {
             Spacer()
 
-            // Username banner if signed in
-            if session.isSignedIn {
-                Text("\(session.displayName)'s")
-                    .font(HPFont.brandRegular(size: 20))
-                    .foregroundColor(.white.opacity(0.85))
-            }
-
             Button {
                 menuOpen = true
             } label: {
@@ -60,7 +53,7 @@ struct LandingView: View {
                 NavigationLink {
                     ResearchGridView()
                 } label: {
-                    Text("RESEARCH")
+                    Text("EXPLORE")
                 }
                 .buttonStyle(HPButtonStyle(color: HPColor.pastelPink))
 
@@ -109,7 +102,7 @@ struct LandingView: View {
                 NavigationLink {
                     ResearchGridView()
                 } label: {
-                    menuLabel("RESEARCH")
+                    menuLabel("EXPLORE")
                 }
 
                 NavigationLink {

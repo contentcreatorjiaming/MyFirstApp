@@ -169,6 +169,7 @@ struct TestNewHookView: View {
             videoFileName: videoFile,
             metrics: nil,
             createdAt: Date(),
+            datePosted: nil,
             authorDisplayName: session.displayName
         )
         store.add(hook)

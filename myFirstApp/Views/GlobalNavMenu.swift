@@ -17,16 +17,9 @@ struct HookPlaygroundTitle: View {
         Button {
             showMenu = true
         } label: {
-            VStack(spacing: 0) {
-                if session.isSignedIn {
-                    Text("\(session.displayName)'s")
-                        .font(HPFont.brandRegular(size: size * 0.55))
-                        .foregroundColor(.white.opacity(0.7))
-                }
-                Text("hook playground")
-                    .font(HPFont.brand(size: size))
-                    .foregroundColor(.white)
-            }
+            Text("hook playground")
+                .font(HPFont.brand(size: size))
+                .foregroundColor(.white)
         }
         .buttonStyle(.plain)
         .fullScreenCover(isPresented: $showMenu) {
@@ -71,7 +64,7 @@ private struct NavMenuOverlay: View {
                         NavigationLink {
                             ResearchGridView()
                         } label: {
-                            menuLabel("RESEARCH")
+                            menuLabel("EXPLORE")
                         }
 
                         NavigationLink {

@@ -28,6 +28,7 @@ struct myFirstAppTests {
             videoFileName: nil,
             metrics: nil,
             createdAt: Date(),
+            datePosted: nil,
             authorDisplayName: "tester"
         )
         await store.add(hook)

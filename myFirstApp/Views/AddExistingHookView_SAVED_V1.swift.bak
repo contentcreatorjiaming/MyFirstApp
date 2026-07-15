@@ -95,7 +95,6 @@ struct AddExistingHookView: View {
             linkURL: linkURL, textContent: nil,
             imageFileName: nil, videoFileName: nil,
             metrics: metrics, createdAt: Date(),
-            datePosted: nil,
             authorDisplayName: session.displayName
         )
         store.add(hook)

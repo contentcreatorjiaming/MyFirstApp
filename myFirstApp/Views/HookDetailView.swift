@@ -2,8 +2,8 @@
 //  HookDetailView.swift
 //  myFirstApp
 //
-//  Full detail view for a single hook. Shows the complete hook content,
-//  real performance metrics, and the community reaction bar.
+//  Full detail view for a single hook. Shows content, metrics,
+//  and reaction bar (only for test hooks, not existing reels).
 //
 
 import SwiftUI
@@ -22,8 +22,11 @@ struct HookDetailView: View {
                     metricsSection(metrics)
                 }
 
-                Divider()
-                ReactionBarView(hookID: hook.id)
+                // Stay/Swipe only for test hooks, not existing reels
+                if hook.source == .testNew {
+                    Divider()
+                    ReactionBarView(hookID: hook.id)
+                }
 
                 Spacer()
             }
@@ -35,27 +38,32 @@ struct HookDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .principal) { HookPlaygroundTitle(size: 16) }
-            ToolbarItem(placement: .topBarTrailing) {
-                BookmarkButton(hookID: hook.id)
-            }
         }
     }
 
-    // MARK: - Subviews
+    // MARK: - Header with bookmark inline
 
     private var headerSection: some View {
-        HStack {
+        HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 4) {
-                Text("created by \(hook.authorDisplayName)")
+                Text("added by \(hook.authorDisplayName)")
                     .font(HPFont.subheading)
                     .foregroundColor(.white)
-                Text(hook.createdAt, style: .date)
+                Text("added on \(hook.createdAt, style: .date)")
                     .font(HPFont.caption)
                     .foregroundColor(HPColor.textSecondary)
+                if let posted = hook.datePosted {
+                    Text("originally posted \(posted, style: .date)")
+                        .font(HPFont.caption)
+                        .foregroundColor(HPColor.textSecondary)
+                }
             }
             Spacer()
+            BookmarkButton(hookID: hook.id)
         }
     }
+
+    // MARK: - Content
 
     @ViewBuilder
     private var contentSection: some View {
@@ -63,9 +71,10 @@ struct HookDetailView: View {
         case .text:
             Text(hook.textContent ?? "")
                 .font(HPFont.body)
+                .foregroundColor(HPColor.backgroundDark)
                 .padding(16)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(HPColor.subtleBg)
+                .background(Color.white)
                 .clipShape(RoundedRectangle(cornerRadius: 14))
         case .visual:
             if let filename = hook.imageFileName,
@@ -78,15 +87,15 @@ struct HookDetailView: View {
         case .link:
             HStack(spacing: 10) {
                 Image(systemName: "link")
-                    .foregroundColor(HPColor.pastelBlue)
+                    .foregroundColor(HPColor.backgroundDark)
                 Text(hook.linkURL ?? "")
                     .font(HPFont.body)
-                    .foregroundColor(HPColor.pastelBlue)
+                    .foregroundColor(HPColor.backgroundDark)
                     .lineLimit(2)
             }
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(HPColor.pastelBlue.opacity(0.08))
+            .background(Color.white)
             .clipShape(RoundedRectangle(cornerRadius: 14))
         case .video:
             if let filename = hook.videoFileName {
@@ -97,10 +106,13 @@ struct HookDetailView: View {
         }
     }
 
+    // MARK: - Metrics
+
     private func metricsSection(_ metrics: HookMetrics) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Performance")
                 .font(HPFont.heading)
+                .foregroundColor(.white)
 
             LazyVGrid(columns: [
                 GridItem(.flexible(), spacing: 10),
@@ -123,14 +135,14 @@ struct HookDetailView: View {
                 .foregroundColor(HPColor.backgroundDark)
             Text(formatNumber(value))
                 .font(HPFont.metric)
-                .foregroundColor(HPColor.textPrimary)
+                .foregroundColor(HPColor.backgroundDark)
             Text(label)
                 .font(HPFont.metricLabel)
-                .foregroundColor(HPColor.textSecondary)
+                .foregroundColor(HPColor.backgroundDark.opacity(0.7))
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 14)
-        .background(HPColor.cardBg)
+        .background(Color.white)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
@@ -144,19 +156,15 @@ struct HookDetailView: View {
 #Preview {
     NavigationStack {
         HookDetailView(hook: Hook(
-            id: UUID(),
-            source: .existing,
-            kind: .text,
-            linkURL: nil,
-            textContent: "POV: you just discovered the one productivity hack that actually works",
-            imageFileName: nil,
-            videoFileName: nil,
+            id: UUID(), source: .existing, kind: .text,
+            linkURL: nil, textContent: "POV: you discovered the one productivity hack that works",
+            imageFileName: nil, videoFileName: nil,
             metrics: HookMetrics(views: 145000, likes: 8200, shares: 1300, comments: 420, saves: 3100),
-            createdAt: Date(),
-            authorDisplayName: "creator_jane"
+            createdAt: Date(), datePosted: nil, authorDisplayName: "creator_jane"
         ))
         .environmentObject(HookStore())
         .environmentObject(ReactionStore())
         .environmentObject(BookmarkStore())
+        .environmentObject(UserSession())
     }
 }
