@@ -15,15 +15,29 @@ struct SignInGateView: View {
     var body: some View {
         Group {
             if session.isSignedIn {
-                if showMenu {
-                    // Brief menu flash after sign-in, then CreateHubView
-                    CreateHubView()
-                        .onAppear {
-                            showMenu = false
+                CreateHubView()
+                    .fullScreenCover(isPresented: $showMenu) {
+                        NavigationStack {
+                            ZStack {
+                                HPGradientBackground()
+                                VStack(spacing: 28) {
+                                    Spacer()
+                                    Text("\(session.displayName)'s")
+                                        .font(HPFont.brandRegular(size: 16))
+                                        .foregroundColor(.white.opacity(0.7))
+                                    VStack(spacing: 0) {
+                                        Text("hook").font(HPFont.heroTitleSmall)
+                                        Text("playground").font(HPFont.heroTitleSmall)
+                                    }.foregroundColor(.white)
+                                    Text("You're in! Tap anywhere to continue.")
+                                        .font(HPFont.body)
+                                        .foregroundColor(.white.opacity(0.6))
+                                    Spacer()
+                                }
+                            }
+                            .onTapGesture { showMenu = false }
                         }
-                } else {
-                    CreateHubView()
-                }
+                    }
             } else {
                 AuthChoiceView(onSignIn: { showMenu = true })
             }

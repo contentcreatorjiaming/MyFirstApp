@@ -87,18 +87,21 @@ struct SavedHooksView: View {
     // MARK: - Stayed / Swiped
 
     private func reactionList(type: ReactionType) -> some View {
+        // Dedup: only show latest reaction per hook
         let userReactions = reactionStore.reactions.filter {
             $0.authorDisplayName == session.displayName && $0.type == type
         }
+        let uniqueHookIDs = Set(userReactions.map { $0.hookID })
         let label = type == .stay ? "stayed for" : "swiped past"
 
         return Group {
-            if userReactions.isEmpty {
+            if uniqueHookIDs.isEmpty {
                 emptyState("No hooks \(label) yet", sub: "Use Stay or Swipe to rate test hooks.")
             } else {
                 LazyVStack(spacing: 12) {
-                    ForEach(userReactions) { reaction in
-                        if let hook = store.hooks.first(where: { $0.id == reaction.hookID }) {
+                    ForEach(Array(uniqueHookIDs), id: \.self) { hookID in
+                        if let hook = store.hooks.first(where: { $0.id == hookID }),
+                           let reaction = userReactions.last(where: { $0.hookID == hookID }) {
                             NavigationLink { HookDetailView(hook: hook) } label: {
                                 VStack(alignment: .leading, spacing: 8) {
                                     hookCard(hook, subtitle: "you \(label) this")

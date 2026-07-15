@@ -11,6 +11,11 @@ import PhotosUI
 import AVFoundation
 
 struct TestNewHookView: View {
+    init() {
+        let green = UIColor(red: 0.13, green: 0.55, blue: 0.40, alpha: 1)
+        UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: green], for: .selected)
+        UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: green.withAlphaComponent(0.6)], for: .normal)
+    }
     @EnvironmentObject private var session: UserSession
     @EnvironmentObject private var store: HookStore
 
@@ -31,8 +36,8 @@ struct TestNewHookView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 Picker("Hook type", selection: $kind) {
-                    Text("Text").foregroundColor(HPColor.backgroundDark).tag(HookKind.text)
-                    Text("Video").foregroundColor(HPColor.backgroundDark).tag(HookKind.video)
+                    Text("Text").tag(HookKind.text)
+                    Text("Video").tag(HookKind.video)
                 }
                 .pickerStyle(.segmented)
 

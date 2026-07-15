@@ -6,6 +6,7 @@
 import SwiftUI
 
 struct FeedbackView: View {
+    @EnvironmentObject private var session: UserSession
     @AppStorage("totalHeartTaps") private var totalTaps: Int = 0
     @AppStorage("userHasTapped") private var userHasTapped: Bool = false
     @State private var heartScale: CGFloat = 1.0
@@ -79,7 +80,7 @@ struct FeedbackView: View {
     }
 
     private func tapHeart() {
-        if !userHasTapped {
+        if !session.isSignedIn && !userHasTapped {
             userHasTapped = true
             totalTaps += 1
         }
