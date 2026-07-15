@@ -2,63 +2,110 @@
 //  LandingView.swift
 //  myFirstApp
 //
-//  Entry point matching the wireframe: Research / Create / Saved Hooks.
+//  Landing screen: tappable "hook playground" title that expands into
+//  a navigation menu (Research / Create / Saved Hooks).
 //
 
 import SwiftUI
 
 struct LandingView: View {
     @EnvironmentObject private var session: UserSession
+    @State private var menuOpen = false
 
     var body: some View {
         NavigationStack {
             ZStack {
                 HPGradientBackground()
 
-                VStack(spacing: 48) {
-                    Spacer()
-
-                    // Brand mark
-                    VStack(spacing: 4) {
-                        Text("hook")
-                            .font(HPFont.heroTitle)
-                        Text("playground")
-                            .font(HPFont.heroTitle)
+                VStack(spacing: 0) {
+                    if menuOpen {
+                        expandedLayout
+                    } else {
+                        collapsedLayout
                     }
-                    .foregroundColor(.white)
-
-                    // Navigation buttons
-                    VStack(spacing: 14) {
-                        HStack(spacing: 14) {
-                            NavigationLink {
-                                ResearchGridView()
-                            } label: {
-                                Text("RESEARCH")
-                            }
-                            .buttonStyle(HPButtonStyle(color: HPColor.sky))
-
-                            NavigationLink {
-                                SignInGateView()
-                            } label: {
-                                Text("CREATE")
-                            }
-                            .buttonStyle(HPButtonStyle(color: HPColor.coral))
-                        }
-
-                        NavigationLink {
-                            SavedHooksView()
-                        } label: {
-                            Text("SAVED HOOKS")
-                        }
-                        .buttonStyle(HPButtonStyle(color: HPColor.ink))
-                    }
-                    .padding(.horizontal, 32)
-
-                    Spacer()
-                    Spacer()
                 }
+                .animation(.spring(response: 0.45, dampingFraction: 0.8), value: menuOpen)
             }
         }
+    }
+
+    // MARK: - Collapsed: big centered title, tap to open
+
+    private var collapsedLayout: some View {
+        VStack {
+            Spacer()
+
+            Button {
+                menuOpen = true
+            } label: {
+                VStack(spacing: 0) {
+                    Text("hook")
+                        .font(HPFont.heroTitle)
+                    Text("playground")
+                        .font(HPFont.heroTitle)
+                }
+                .foregroundColor(.white)
+            }
+            .buttonStyle(.plain)
+
+            Spacer()
+            Spacer()
+        }
+    }
+
+    // MARK: - Expanded: small title at top, menu below
+
+    private var expandedLayout: some View {
+        VStack(spacing: 0) {
+            // Small title at top — tap to collapse
+            Button {
+                menuOpen = false
+            } label: {
+                VStack(spacing: 0) {
+                    Text("hook")
+                        .font(HPFont.heroTitleSmall)
+                    Text("playground")
+                        .font(HPFont.heroTitleSmall)
+                }
+                .foregroundColor(.white.opacity(0.85))
+            }
+            .buttonStyle(.plain)
+            .padding(.top, 60)
+
+            Spacer()
+
+            // Menu options
+            VStack(spacing: 28) {
+                NavigationLink {
+                    ResearchGridView()
+                } label: {
+                    menuLabel("RESEARCH")
+                }
+
+                NavigationLink {
+                    SignInGateView()
+                } label: {
+                    menuLabel("CREATE")
+                }
+
+                NavigationLink {
+                    SavedHooksView()
+                } label: {
+                    menuLabel("SAVED HOOKS")
+                }
+            }
+            .transition(.opacity.combined(with: .move(edge: .bottom)))
+
+            Spacer()
+            Spacer()
+        }
+    }
+
+    private func menuLabel(_ text: String) -> some View {
+        Text(text)
+            .font(HPFont.menuItem)
+            .foregroundColor(.white)
+            .tracking(2)
     }
 }
 
@@ -67,4 +114,5 @@ struct LandingView: View {
         .environmentObject(UserSession())
         .environmentObject(HookStore())
         .environmentObject(BookmarkStore())
+        .environmentObject(ReactionStore())
 }
