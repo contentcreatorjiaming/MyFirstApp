@@ -2,7 +2,7 @@
 //  CreateHubView.swift
 //  myFirstApp
 //
-//  Post-sign-in hub: Add Existing vs Test New, side by side.
+//  Post-sign-in hub: Add (link+metrics) vs Test (text/video hook).
 //
 
 import SwiftUI
@@ -12,15 +12,18 @@ struct CreateHubView: View {
         ZStack {
             HPGradientBackground()
 
-            VStack(spacing: 36) {
+            VStack {
+                Spacer()
+
                 HookPlaygroundTitle(size: 40, twoLines: true)
+
+                Spacer().frame(height: 36)
 
                 HStack(spacing: 14) {
                     NavigationLink {
                         AddExistingHookView()
                     } label: {
                         Text("ADD")
-                            .multilineTextAlignment(.center)
                     }
                     .buttonStyle(HPButtonStyle(color: HPColor.pastelPink, fullWidth: true))
 
@@ -28,18 +31,13 @@ struct CreateHubView: View {
                         TestNewHookView()
                     } label: {
                         Text("TEST")
-                            .multilineTextAlignment(.center)
                     }
                     .buttonStyle(HPButtonStyle(color: HPColor.pastelBlue, fullWidth: true))
                 }
                 .padding(.horizontal, 32)
+
+                Spacer()
             }
         }
-    }
-}
-
-#Preview {
-    NavigationStack {
-        CreateHubView()
     }
 }

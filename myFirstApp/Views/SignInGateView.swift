@@ -9,19 +9,25 @@ import SwiftUI
 
 struct SignInGateView: View {
     @EnvironmentObject private var session: UserSession
+    @State private var showMenuAfterSignIn = false
 
     var body: some View {
         Group {
-            if session.isSignedIn {
+            if session.isSignedIn && !showMenuAfterSignIn {
                 CreateHubView()
+            } else if session.isSignedIn && showMenuAfterSignIn {
+                // Just signed in — show menu
+                CreateHubView()
+                    .onAppear { showMenuAfterSignIn = false }
             } else {
-                AuthChoiceView()
+                AuthChoiceView(onSignIn: { showMenuAfterSignIn = true })
             }
         }
     }
 }
 
 private struct AuthChoiceView: View {
+    var onSignIn: () -> Void = {}
     @State private var showForm = false
     @State private var isSignUp = false
 
@@ -30,7 +36,7 @@ private struct AuthChoiceView: View {
             HPGradientBackground()
 
             if showForm {
-                AuthFormView(isSignUp: isSignUp)
+                AuthFormView(isSignUp: isSignUp, onSignIn: onSignIn)
             } else {
                 VStack(spacing: 36) {
                     VStack(spacing: 0) {
@@ -63,6 +69,7 @@ private struct AuthChoiceView: View {
 
 private struct AuthFormView: View {
     let isSignUp: Bool
+    var onSignIn: () -> Void = {}
     @EnvironmentObject private var session: UserSession
     @State private var username = ""
     @State private var password = ""

@@ -28,7 +28,9 @@ struct TestHooksPageView: View {
         ZStack {
             HPGradientBackground()
 
-            if testHooks.isEmpty {
+            if !session.isSignedIn {
+                signInPrompt
+            } else if testHooks.isEmpty {
                 emptyState
             } else if currentIndex >= testHooks.count {
                 completionState
@@ -106,6 +108,27 @@ struct TestHooksPageView: View {
                 .font(HPFont.body)
                 .foregroundColor(.white.opacity(0.7))
                 .multilineTextAlignment(.center)
+        }
+    }
+
+    private var signInPrompt: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "person.crop.circle")
+                .font(.system(size: 50))
+                .foregroundColor(.white.opacity(0.6))
+            Text("Sign in to play")
+                .font(HPFont.heading)
+                .foregroundColor(.white)
+            Text("Create an account to swipe on hooks\nand leave feedback.")
+                .font(HPFont.body)
+                .foregroundColor(.white.opacity(0.7))
+                .multilineTextAlignment(.center)
+            NavigationLink {
+                SignInGateView()
+            } label: {
+                Text("SIGN IN")
+            }
+            .buttonStyle(HPSecondaryButtonStyle())
         }
     }
 
