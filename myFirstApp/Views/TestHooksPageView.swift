@@ -47,9 +47,13 @@ struct TestHooksPageView: View {
             // "Sent!" flash
             if showSentMessage {
                 Text("Sent!")
-                    .font(HPFont.heading)
+                    .font(HPFont.brand(size: 28))
                     .foregroundColor(.white)
-                    .transition(.opacity)
+                    .padding(.horizontal, 30)
+                    .padding(.vertical, 14)
+                    .background(HPColor.backgroundDark.opacity(0.8))
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .transition(.scale.combined(with: .opacity))
             }
         }
         .navigationTitle("")

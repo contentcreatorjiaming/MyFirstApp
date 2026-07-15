@@ -3,24 +3,29 @@
 //  myFirstApp
 //
 //  Auth gate: Sign In / Sign Up → username + password form.
+//  After sign-in, shows the full menu with user's name.
 //
 
 import SwiftUI
 
 struct SignInGateView: View {
     @EnvironmentObject private var session: UserSession
-    @State private var showMenuAfterSignIn = false
+    @State private var showMenu = false
 
     var body: some View {
         Group {
-            if session.isSignedIn && !showMenuAfterSignIn {
-                CreateHubView()
-            } else if session.isSignedIn && showMenuAfterSignIn {
-                // Just signed in — show menu
-                CreateHubView()
-                    .onAppear { showMenuAfterSignIn = false }
+            if session.isSignedIn {
+                if showMenu {
+                    // Brief menu flash after sign-in, then CreateHubView
+                    CreateHubView()
+                        .onAppear {
+                            showMenu = false
+                        }
+                } else {
+                    CreateHubView()
+                }
             } else {
-                AuthChoiceView(onSignIn: { showMenuAfterSignIn = true })
+                AuthChoiceView(onSignIn: { showMenu = true })
             }
         }
     }
@@ -38,14 +43,16 @@ private struct AuthChoiceView: View {
             if showForm {
                 AuthFormView(isSignUp: isSignUp, onSignIn: onSignIn)
             } else {
-                VStack(spacing: 36) {
+                VStack {
+                    Spacer()
+
                     VStack(spacing: 0) {
-                        Text("hook")
-                            .font(HPFont.screenTitle)
-                        Text("playground")
-                            .font(HPFont.screenTitle)
+                        Text("hook").font(HPFont.screenTitle)
+                        Text("playground").font(HPFont.screenTitle)
                     }
                     .foregroundColor(.white)
+
+                    Spacer().frame(height: 36)
 
                     HStack(spacing: 14) {
                         Button("SIGN IN") {
@@ -60,6 +67,8 @@ private struct AuthChoiceView: View {
                         }
                         .buttonStyle(HPButtonStyle(color: HPColor.pastelPink))
                     }
+
+                    Spacer()
                 }
             }
         }
@@ -78,10 +87,8 @@ private struct AuthFormView: View {
     var body: some View {
         VStack(spacing: 24) {
             VStack(spacing: 0) {
-                Text("hook")
-                    .font(HPFont.heroTitleSmall)
-                Text("playground")
-                    .font(HPFont.heroTitleSmall)
+                Text("hook").font(HPFont.heroTitleSmall)
+                Text("playground").font(HPFont.heroTitleSmall)
             }
             .foregroundColor(.white)
 
@@ -90,48 +97,31 @@ private struct AuthFormView: View {
                 .foregroundColor(.white)
 
             VStack(spacing: 14) {
-                // Username
                 HStack {
-                    Text("Username")
-                        .font(HPFont.body)
-                        .foregroundColor(.white)
-                        .frame(width: 85, alignment: .leading)
+                    Text("Username").font(HPFont.body).foregroundColor(.white).frame(width: 85, alignment: .leading)
                     TextField("your name", text: $username)
-                        .padding(12)
-                        .background(Color.white)
+                        .padding(12).background(Color.white)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .textInputAutocapitalization(.never)
                 }
-
-                // Password
                 HStack {
-                    Text("Password")
-                        .font(HPFont.body)
-                        .foregroundColor(.white)
-                        .frame(width: 85, alignment: .leading)
+                    Text("Password").font(HPFont.body).foregroundColor(.white).frame(width: 85, alignment: .leading)
                     SecureField("password", text: $password)
-                        .padding(12)
-                        .background(Color.white)
+                        .padding(12).background(Color.white)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
             }
             .padding(.horizontal, 24)
 
             if let error = errorMessage {
-                Text(error)
-                    .font(HPFont.caption)
-                    .foregroundColor(.yellow)
-                    .padding(.horizontal)
+                Text(error).font(HPFont.caption).foregroundColor(.yellow).padding(.horizontal)
             }
 
-            Button("CONTINUE") {
-                submit()
-            }
-            .buttonStyle(HPButtonStyle(color: HPColor.ink))
-            .disabled(username.isEmpty || password.isEmpty)
-            .opacity(username.isEmpty || password.isEmpty ? 0.5 : 1)
+            Button("CONTINUE") { submit() }
+                .buttonStyle(HPButtonStyle(color: HPColor.ink))
+                .disabled(username.isEmpty || password.isEmpty)
+                .opacity(username.isEmpty || password.isEmpty ? 0.5 : 1)
 
-            // Divider
             HStack {
                 Rectangle().frame(height: 1).foregroundColor(.white.opacity(0.3))
                 Text("or").font(HPFont.caption).foregroundColor(.white.opacity(0.6))
@@ -140,13 +130,12 @@ private struct AuthFormView: View {
             .padding(.horizontal, 40)
 
             Button {
-                // Mock Google sign-in — just creates an account
                 session.signIn(displayName: "Google User")
+                onSignIn()
             } label: {
                 HStack(spacing: 10) {
                     Image(systemName: "globe")
-                    Text("Sign in with Google")
-                        .font(HPFont.body)
+                    Text("Sign in with Google").font(HPFont.body)
                 }
             }
             .buttonStyle(HPSecondaryButtonStyle())
@@ -163,6 +152,8 @@ private struct AuthFormView: View {
         }
         if let err = result {
             errorMessage = err.rawValue
+        } else {
+            onSignIn()
         }
     }
 }

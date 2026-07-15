@@ -15,6 +15,14 @@ struct SavedHooksView: View {
 
     @State private var selectedTab = 0
 
+    init() {
+        // Green text for segmented picker
+        let green = UIColor(red: 0.13, green: 0.55, blue: 0.40, alpha: 1)
+        UISegmentedControl.appearance().selectedSegmentTintColor = .white
+        UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: green], for: .selected)
+        UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: green.withAlphaComponent(0.6)], for: .normal)
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             if !session.isSignedIn {
@@ -32,9 +40,9 @@ struct SavedHooksView: View {
                 }
             } else {
                 Picker("", selection: $selectedTab) {
-                    Text("Saved").foregroundColor(HPColor.backgroundDark).tag(0)
-                    Text("Stayed").foregroundColor(HPColor.backgroundDark).tag(1)
-                    Text("Swiped").foregroundColor(HPColor.backgroundDark).tag(2)
+                    Text("Saved").tag(0)
+                    Text("Stayed").tag(1)
+                    Text("Swiped").tag(2)
                 }
                 .pickerStyle(.segmented)
                 .padding(.horizontal)
