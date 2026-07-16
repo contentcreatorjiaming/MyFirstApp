@@ -69,15 +69,20 @@ struct HookDetailView: View {
                     metricsSection(metrics)
                 }
 
-                // AI description
+                // AI Summary
                 if let summary = hook.aiSummary {
-                    Text(summary)
-                        .font(HPFont.body)
-                        .foregroundColor(.white.opacity(0.9))
-                        .padding(14)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.white.opacity(0.15))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("AI Summary")
+                            .font(HPFont.heading)
+                            .foregroundColor(.white)
+                        Text(summary)
+                            .font(HPFont.body)
+                            .foregroundColor(.white.opacity(0.9))
+                            .padding(14)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color.white.opacity(0.15))
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
                 } else if hook.metrics != nil {
                     Text(AIInsightEngine.generateInsight(for: hook))
                         .font(HPFont.body)

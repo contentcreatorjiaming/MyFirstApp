@@ -2,86 +2,46 @@
 //  SignInGateView.swift
 //  myFirstApp
 //
-//  Auth gate: Sign In / Sign Up → username + password form.
-//  After sign-in, shows the full menu with user's name.
-//
 
 import SwiftUI
 
 struct SignInGateView: View {
     @EnvironmentObject private var session: UserSession
-    @State private var showMenu = false
 
     var body: some View {
         Group {
             if session.isSignedIn {
                 CreateHubView()
-                    .fullScreenCover(isPresented: $showMenu) {
-                        NavigationStack {
-                            ZStack {
-                                HPGradientBackground()
-                                VStack(spacing: 28) {
-                                    Spacer()
-                                    Text("\(session.displayName)'s")
-                                        .font(HPFont.brandRegular(size: 16))
-                                        .foregroundColor(.white.opacity(0.7))
-                                    VStack(spacing: 0) {
-                                        Text("hook").font(HPFont.heroTitleSmall)
-                                        Text("playground").font(HPFont.heroTitleSmall)
-                                    }.foregroundColor(.white)
-                                    Text("You're in! Tap anywhere to continue.")
-                                        .font(HPFont.body)
-                                        .foregroundColor(.white.opacity(0.6))
-                                    Spacer()
-                                }
-                            }
-                            .onTapGesture { showMenu = false }
-                        }
-                    }
             } else {
-                AuthChoiceView(onSignIn: { showMenu = true })
+                AuthChoiceView()
             }
         }
     }
 }
 
 private struct AuthChoiceView: View {
-    var onSignIn: () -> Void = {}
     @State private var showForm = false
     @State private var isSignUp = false
 
     var body: some View {
         ZStack {
             HPGradientBackground()
-
             if showForm {
-                AuthFormView(isSignUp: isSignUp, onSignIn: onSignIn)
+                AuthFormView(isSignUp: isSignUp)
             } else {
                 VStack {
                     Spacer()
-
                     VStack(spacing: 0) {
                         Text("hook").font(HPFont.screenTitle)
                         Text("playground").font(HPFont.screenTitle)
-                    }
-                    .foregroundColor(.white)
-
+                    }.foregroundColor(.white)
                     Spacer().frame(height: 36)
-
                     HStack(spacing: 14) {
-                        Button("SIGN IN") {
-                            isSignUp = false
-                            showForm = true
-                        }
-                        .buttonStyle(HPButtonStyle(color: HPColor.pastelBlue))
-
-                        Button("SIGN UP") {
-                            isSignUp = true
-                            showForm = true
-                        }
-                        .buttonStyle(HPButtonStyle(color: HPColor.pastelPink))
+                        Button("SIGN IN") { isSignUp = false; showForm = true }
+                            .buttonStyle(HPButtonStyle(color: HPColor.pastelBlue))
+                        Button("SIGN UP") { isSignUp = true; showForm = true }
+                            .buttonStyle(HPButtonStyle(color: HPColor.pastelPink))
                     }
-
                     Spacer()
                 }
             }
@@ -92,7 +52,6 @@ private struct AuthChoiceView: View {
 
 private struct AuthFormView: View {
     let isSignUp: Bool
-    var onSignIn: () -> Void = {}
     @EnvironmentObject private var session: UserSession
     @State private var username = ""
     @State private var password = ""
@@ -103,13 +62,9 @@ private struct AuthFormView: View {
             VStack(spacing: 0) {
                 Text("hook").font(HPFont.heroTitleSmall)
                 Text("playground").font(HPFont.heroTitleSmall)
-            }
-            .foregroundColor(.white)
-
+            }.foregroundColor(.white)
             Text(isSignUp ? "Create your account" : "Welcome back")
-                .font(HPFont.heading)
-                .foregroundColor(.white)
-
+                .font(HPFont.heading).foregroundColor(.white)
             VStack(spacing: 14) {
                 HStack {
                     Text("Username").font(HPFont.body).foregroundColor(.white).frame(width: 85, alignment: .leading)
@@ -124,36 +79,14 @@ private struct AuthFormView: View {
                         .padding(12).background(Color.white)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
-            }
-            .padding(.horizontal, 24)
-
+            }.padding(.horizontal, 24)
             if let error = errorMessage {
                 Text(error).font(HPFont.caption).foregroundColor(.yellow).padding(.horizontal)
             }
-
             Button("CONTINUE") { submit() }
                 .buttonStyle(HPButtonStyle(color: HPColor.ink))
                 .disabled(username.isEmpty || password.isEmpty)
                 .opacity(username.isEmpty || password.isEmpty ? 0.5 : 1)
-
-            HStack {
-                Rectangle().frame(height: 1).foregroundColor(.white.opacity(0.3))
-                Text("or").font(HPFont.caption).foregroundColor(.white.opacity(0.6))
-                Rectangle().frame(height: 1).foregroundColor(.white.opacity(0.3))
-            }
-            .padding(.horizontal, 40)
-
-            Button {
-                session.signIn(displayName: "Google User")
-                onSignIn()
-            } label: {
-                HStack(spacing: 10) {
-                    Image(systemName: "globe")
-                    Text("Sign in with Google").font(HPFont.body)
-                }
-            }
-            .buttonStyle(HPSecondaryButtonStyle())
-            .padding(.horizontal, 40)
         }
     }
 
@@ -164,15 +97,6 @@ private struct AuthFormView: View {
         } else {
             result = session.signIn(username: username, password: password)
         }
-        if let err = result {
-            errorMessage = err.rawValue
-        } else {
-            onSignIn()
-        }
+        if let err = result { errorMessage = err.rawValue }
     }
-}
-
-#Preview {
-    SignInGateView()
-        .environmentObject(UserSession())
 }

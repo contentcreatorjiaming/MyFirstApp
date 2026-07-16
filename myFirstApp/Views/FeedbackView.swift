@@ -8,7 +8,7 @@ import SwiftUI
 struct FeedbackView: View {
     @EnvironmentObject private var session: UserSession
     @AppStorage("totalHeartTaps") private var totalTaps: Int = 0
-    @AppStorage("userHasTapped") private var userHasTapped: Bool = false
+    @AppStorage("userHasTappedV2") private var userHasTapped: Bool = false
     @State private var heartScale: CGFloat = 1.0
     @State private var heartOpacity: Double = 0.0
     @State private var showBigHeart = false
