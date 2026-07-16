@@ -87,21 +87,24 @@ struct SavedHooksView: View {
     // MARK: - Stayed / Swiped
 
     private func reactionList(type: ReactionType) -> some View {
-        // Dedup: only show latest reaction per hook
-        let userReactions = reactionStore.reactions.filter {
-            $0.authorDisplayName == session.displayName && $0.type == type
+        // Get ALL user reactions, take latest per hookID, then filter by type
+        let allUserReactions = reactionStore.reactions.filter {
+            $0.authorDisplayName == session.displayName
         }
-        let uniqueHookIDs = Set(userReactions.map { $0.hookID })
+        var latestByHook: [UUID: Reaction] = [:]
+        for r in allUserReactions {
+            latestByHook[r.hookID] = r // last one wins
+        }
+        let matching = latestByHook.values.filter { $0.type == type }
         let label = type == .stay ? "stayed for" : "swiped past"
 
         return Group {
-            if uniqueHookIDs.isEmpty {
-                emptyState("No hooks \(label) yet", sub: "Use Stay or Swipe to rate test hooks.")
+            if matching.isEmpty {
+                emptyState("No hooks \(label) yet", sub: "Use Swipe or Stay to rate test hooks.")
             } else {
                 LazyVStack(spacing: 12) {
-                    ForEach(Array(uniqueHookIDs), id: \.self) { hookID in
-                        if let hook = store.hooks.first(where: { $0.id == hookID }),
-                           let reaction = userReactions.last(where: { $0.hookID == hookID }) {
+                    ForEach(Array(matching), id: \.id) { reaction in
+                        if let hook = store.hooks.first(where: { $0.id == reaction.hookID }) {
                             NavigationLink { HookDetailView(hook: hook) } label: {
                                 VStack(alignment: .leading, spacing: 8) {
                                     hookCard(hook, subtitle: "you \(label) this")

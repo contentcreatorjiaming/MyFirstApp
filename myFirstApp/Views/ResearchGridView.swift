@@ -52,31 +52,28 @@ private struct ResearchCard: View {
             HookDetailView(hook: hook)
         } label: {
             VStack(alignment: .leading, spacing: 10) {
-                HStack(spacing: 10) {
-                    IGStyleIcon(size: 30, color: HPColor.backgroundDark)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Instagram Reel")
-                            .font(HPFont.subheading)
-                            .foregroundColor(HPColor.textDark)
-                        if let m = hook.metrics {
-                            Text(formatNumber(m.views) + " views")
-                                .font(HPFont.caption)
-                                .foregroundColor(HPColor.backgroundDark)
-                        }
+                // 2x3 performance grid
+                if let m = hook.metrics {
+                    LazyVGrid(columns: [
+                        GridItem(.flexible(), spacing: 6),
+                        GridItem(.flexible(), spacing: 6),
+                        GridItem(.flexible(), spacing: 6)
+                    ], spacing: 6) {
+                        miniMetric("Views", value: m.views)
+                        miniMetric("Shares", value: m.shares)
+                        miniMetric("Likes", value: m.likes)
+                        miniMetric("Saves", value: m.saves)
+                        miniMetric("Reposts", value: m.reposts)
+                        miniMetric("Comments", value: m.comments)
                     }
-                    Spacer()
                 }
-                .padding(12)
-                .background(HPColor.background.opacity(0.3))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
 
                 HStack {
                     Text("added by \(hook.authorDisplayName)")
                         .font(HPFont.caption)
                         .foregroundColor(HPColor.backgroundDark.opacity(0.6))
-                        .lineLimit(1)
                     Spacer()
-                    Text("more data →")
+                    Text("see more →")
                         .font(HPFont.caption)
                         .foregroundColor(HPColor.backgroundDark)
                         .padding(.horizontal, 10)
@@ -90,6 +87,21 @@ private struct ResearchCard: View {
             .clipShape(RoundedRectangle(cornerRadius: 16))
         }
         .buttonStyle(.plain)
+    }
+
+    private func miniMetric(_ label: String, value: Int) -> some View {
+        VStack(spacing: 2) {
+            Text(formatNumber(value))
+                .font(HPFont.brandRegular(size: 14))
+                .foregroundColor(HPColor.backgroundDark)
+            Text(label)
+                .font(HPFont.brandRegular(size: 9))
+                .foregroundColor(HPColor.backgroundDark.opacity(0.6))
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .background(HPColor.background.opacity(0.2))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     private func formatNumber(_ n: Int) -> String {
