@@ -268,27 +268,64 @@ struct HookDetailView: View {
 
     private var communityFeedbackSection: some View {
         let entries = reactionStore.feedbackEntries(for: hook.id)
+        let originals = entries.filter { !($0.feedback?.hasPrefix("↳") ?? false) }
+        let replies = entries.filter { $0.feedback?.hasPrefix("↳") ?? false }
+
         return Group {
-            if !entries.isEmpty {
+            if !originals.isEmpty {
                 VStack(alignment: .leading, spacing: 10) {
                     Text("Community Feedback")
                         .font(HPFont.heading)
                         .foregroundColor(.white)
-                    ForEach(entries) { entry in
-                        HStack(alignment: .top, spacing: 8) {
-                            Text(entry.type == .stay ? "✓" : "✗")
-                                .font(HPFont.subheading)
-                                .foregroundColor(HPColor.backgroundDark)
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(entry.authorDisplayName)
-                                    .font(HPFont.caption)
+                    ForEach(originals) { entry in
+                        VStack(alignment: .leading, spacing: 0) {
+                            // Original feedback
+                            HStack(alignment: .top, spacing: 8) {
+                                Text(entry.type == .stay ? "✓" : "✗")
+                                    .font(HPFont.subheading)
                                     .foregroundColor(HPColor.backgroundDark)
-                                Text(entry.feedback ?? "")
-                                    .font(HPFont.body)
-                                    .foregroundColor(HPColor.textDark)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(entry.authorDisplayName)
+                                        .font(HPFont.caption)
+                                        .foregroundColor(HPColor.backgroundDark)
+                                    Text(entry.feedback ?? "")
+                                        .font(HPFont.body)
+                                        .foregroundColor(HPColor.textDark)
+                                }
+                                Spacer()
+                            }
+                            .padding(10)
+
+                            // Threaded replies
+                            let threadReplies = replies.filter {
+                                $0.feedback?.contains("@\(entry.authorDisplayName)") ?? false
+                            }
+                            ForEach(threadReplies) { reply in
+                                HStack(alignment: .top, spacing: 8) {
+                                    Text("↳")
+                                        .font(HPFont.caption)
+                                        .foregroundColor(HPColor.backgroundDark.opacity(0.5))
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(reply.authorDisplayName)
+                                            .font(HPFont.caption)
+                                            .foregroundColor(HPColor.backgroundDark.opacity(0.7))
+                                        Text(reply.feedback?.replacingOccurrences(of: "↳ @\(entry.authorDisplayName): ", with: "") ?? "")
+                                            .font(HPFont.caption)
+                                            .foregroundColor(HPColor.textDark)
+                                    }
+                                }
+                                .padding(.leading, 30)
+                                .padding(.trailing, 10)
+                                .padding(.bottom, 6)
+                            }
+
+                            // Reply button
+                            if session.isSignedIn {
+                                ReplyButton(hookID: hook.id, parentAuthor: entry.authorDisplayName)
+                                    .padding(.horizontal, 10)
+                                    .padding(.bottom, 8)
                             }
                         }
-                        .padding(10)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Color.white.opacity(0.9))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
