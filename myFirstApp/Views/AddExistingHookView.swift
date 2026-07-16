@@ -31,6 +31,7 @@ struct AddExistingHookView: View {
                 TextField("https://instagram.com/...", text: $linkURL)
                     .font(HPFont.body)
                     .foregroundColor(HPColor.backgroundDark)
+                    .tint(HPColor.backgroundDark)
                     .padding(14)
                     .background(Color.white)
                     .clipShape(RoundedRectangle(cornerRadius: 12))

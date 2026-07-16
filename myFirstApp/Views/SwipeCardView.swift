@@ -24,7 +24,7 @@ struct SwipeCardView: View {
 
     var body: some View {
         ZStack {
-            // Shifting gradient background
+            // Color-shifting gradient
             LinearGradient(
                 colors: gradientColors,
                 startPoint: .leading,
@@ -33,7 +33,11 @@ struct SwipeCardView: View {
             .ignoresSafeArea()
             .animation(.easeOut(duration: 0.15), value: dragProgress)
 
-            VStack(spacing: 24) {
+            VStack(spacing: 20) {
+                // Big centered title
+                HookPlaygroundTitle(size: 32, twoLines: true)
+                    .padding(.top, 20)
+
                 // Direction indicator
                 if abs(dragProgress) > 0.3 {
                     Text(dragProgress > 0 ? "STAY" : "SWIPE")
