@@ -57,7 +57,7 @@ struct TestHooksPageView: View {
             }
         }
         .navigationTitle("")
-        .toolbar { ToolbarItem(placement: .principal) { HookPlaygroundTitle(size: 18, twoLines: true) } }
+        
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.clear, for: .navigationBar)
     }
