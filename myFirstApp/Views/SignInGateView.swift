@@ -22,13 +22,10 @@ struct SignInGateView: View {
 private struct AuthChoiceView: View {
     @State private var showForm = false
     @State private var isSignUp = false
-    
+
     var body: some View {
         ZStack {
             HPGradientBackground()
-        }
-    }
-}
             if showForm {
                 AuthFormView(isSignUp: isSignUp)
             } else {
