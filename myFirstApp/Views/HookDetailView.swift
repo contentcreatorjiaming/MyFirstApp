@@ -55,12 +55,10 @@ struct HookDetailView: View {
                     }
                 }
 
-                // Link + Claim side by side for existing hooks
+                // Link + Claim for existing hooks
                 if hook.source == .existing {
-                    HStack(alignment: .top, spacing: 10) {
-                        contentSection
-                        claimSection
-                    }
+                    contentSection
+                    claimSection
                 } else {
                     contentSection
                 }
@@ -338,61 +336,60 @@ struct HookDetailView: View {
     private var claimSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             if let claimed = hook.claimedBy {
-                HStack(spacing: 10) {
-                    // Claimed badge
-                    VStack(spacing: 4) {
-                        Image(systemName: "person.badge.shield.checkmark")
+                Text("Claimed by \(claimed)")
+                    .font(HPFont.caption)
+                    .foregroundColor(.white.opacity(0.7))
+
+                if let rate = hook.skipRate {
+                    HStack(spacing: 6) {
+                        Image(systemName: "chart.line.downtrend.xyaxis")
                             .foregroundColor(HPColor.backgroundDark)
-                        Text("Claimed by \(claimed)")
-                            .font(HPFont.caption)
+                        Text("\(String(format: "%.0f", rate))%")
+                            .font(HPFont.metric)
                             .foregroundColor(HPColor.backgroundDark)
+                        Text("Skip Rate")
+                            .font(HPFont.metricLabel)
+                            .foregroundColor(HPColor.backgroundDark.opacity(0.7))
                     }
-                    .frame(maxWidth: .infinity)
                     .padding(14)
                     .background(Color.white)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
-
-                    // Skip rate card (same style as performance)
-                    if let rate = hook.skipRate {
-                        VStack(spacing: 4) {
-                            Image(systemName: "chart.line.downtrend.xyaxis")
-                                .foregroundColor(HPColor.backgroundDark)
-                            Text("\(String(format: "%.0f", rate))%")
-                                .font(HPFont.metric)
-                                .foregroundColor(HPColor.backgroundDark)
-                            Text("Skip Rate")
-                                .font(HPFont.metricLabel)
-                                .foregroundColor(HPColor.backgroundDark.opacity(0.7))
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(14)
-                        .background(Color.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                    }
                 }
             } else if session.isSignedIn {
                 if showClaimInput {
-                    HStack(spacing: 10) {
-                        Text("Skip rate")
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Enter your skip rate:")
                             .font(HPFont.body).foregroundColor(.white)
-                        TextField("e.g. 42", text: $skipRateInput)
-                            .font(HPFont.body).padding(10).background(Color.white)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                            .keyboardType(.decimalPad).frame(width: 80)
-                        Text("%").font(HPFont.body).foregroundColor(.white)
-                        Spacer()
-                        Button("Save") {
-                            if let rate = Double(skipRateInput) {
-                                store.claimHook(hookID: hook.id, by: session.displayName, skipRate: rate)
-                                showClaimInput = false
+                        HStack(spacing: 8) {
+                            TextField("e.g. 42", text: $skipRateInput)
+                                .font(HPFont.body).padding(10).background(Color.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .keyboardType(.decimalPad).frame(width: 100)
+                            Text("%").font(HPFont.body).foregroundColor(.white)
+                            Button("Save") {
+                                if let rate = Double(skipRateInput) {
+                                    store.claimHook(hookID: hook.id, by: session.displayName, skipRate: rate)
+                                    showClaimInput = false
+                                }
                             }
-                        }.buttonStyle(HPSecondaryButtonStyle())
+                            .buttonStyle(HPButtonStyle(color: HPColor.backgroundDark))
+                        }
                     }
                 } else {
-                    Button { showClaimInput = true } label: {
-                        Label("This is my reel — add skip rate", systemImage: "hand.raised")
-                            .font(HPFont.body)
-                    }.buttonStyle(HPSecondaryButtonStyle())
+                    Button {
+                        showClaimInput = true
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "hand.raised")
+                            Text("This is my reel — add skip rate")
+                                .font(HPFont.body)
+                        }
+                        .foregroundColor(HPColor.backgroundDark)
+                        .padding(14)
+                        .frame(maxWidth: .infinity)
+                        .background(Color.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
                 }
             }
         }
