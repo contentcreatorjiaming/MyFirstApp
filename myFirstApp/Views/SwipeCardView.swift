@@ -15,6 +15,7 @@ struct SwipeCardView: View {
 
     @State private var dragOffset: CGFloat = 0
     @State private var dismissed = false
+    @State private var gradientPhase: CGFloat = 0
 
     private let swipeThreshold: CGFloat = 120
 
@@ -89,6 +90,11 @@ struct SwipeCardView: View {
             }
             .padding()
         }
+        .onAppear {
+            withAnimation(.easeInOut(duration: 4).repeatForever(autoreverses: true)) {
+                gradientPhase = 1
+            }
+        }
     }
 
     // MARK: - Card content
@@ -127,13 +133,16 @@ struct SwipeCardView: View {
 
     private var gradientColors: [Color] {
         if dragProgress > 0.1 {
-            // Swiping right → blue (Stay)
             return [HPColor.background, HPColor.pastelBlue.opacity(Double(dragProgress))]
         } else if dragProgress < -0.1 {
-            // Swiping left → pink (Swipe)
             return [HPColor.pastelPink.opacity(Double(abs(dragProgress))), HPColor.background]
         }
-        return [HPColor.background, HPColor.background]
+        // Idle: slowly shifting green tones
+        let shift = sin(gradientPhase * .pi) * 0.15
+        return [
+            HPColor.background.opacity(1 - shift),
+            Color(red: 0.45 + shift, green: 0.78, blue: 0.55 + shift)
+        ]
     }
 
     // MARK: - Gesture
