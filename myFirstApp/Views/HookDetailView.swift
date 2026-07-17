@@ -18,6 +18,7 @@ struct HookDetailView: View {
     @State private var showClaimInput = false
     @State private var skipRateInput: String = ""
     @State private var showSignInForClaim = false
+    @State private var showMenu = false
 
     private var isOwnHook: Bool {
         session.isSignedIn && hook.authorDisplayName == session.displayName
@@ -108,7 +109,16 @@ struct HookDetailView: View {
         .toolbarBackground(HPColor.background, for: .navigationBar)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .principal) { HookPlaygroundTitle(size: 18, twoLines: true) }
+            ToolbarItem(placement: .principal) {
+                Button { showMenu = true } label: {
+                    HookPlaygroundTitle(size: 18, twoLines: true)
+                }
+            }
+        }
+        .fullScreenCover(isPresented: $showMenu) {
+            NavigationStack {
+                NavMenuOverlay(isPresented: $showMenu)
+            }
         }
     }
 
