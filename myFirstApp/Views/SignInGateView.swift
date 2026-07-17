@@ -28,7 +28,7 @@ private struct AuthChoiceView: View {
             HPGradientBackground()
             if showForm {
                 AuthFormView(isSignUp: isSignUp)
-            } else {
+                ;           } else {
                 VStack {
                     Spacer()
                     VStack(spacing: 0) {

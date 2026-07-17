@@ -17,6 +17,7 @@ struct HookDetailView: View {
     @State private var editText: String = ""
     @State private var showClaimInput = false
     @State private var skipRateInput: String = ""
+    @State private var showSignInForClaim = false
 
     private var isOwnHook: Bool {
         session.isSignedIn && hook.authorDisplayName == session.displayName
@@ -355,7 +356,7 @@ struct HookDetailView: View {
                     .background(Color.white)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
-            } else if session.isSignedIn {
+            } else {
                 if showClaimInput {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Enter your skip rate:")
@@ -377,7 +378,11 @@ struct HookDetailView: View {
                     }
                 } else {
                     Button {
-                        showClaimInput = true
+                        if session.isSignedIn {
+                            showClaimInput = true
+                        } else {
+                            showSignInForClaim = true
+                        }
                     } label: {
                         HStack(spacing: 8) {
                             Image(systemName: "hand.raised")
@@ -389,6 +394,17 @@ struct HookDetailView: View {
                         .frame(maxWidth: .infinity)
                         .background(Color.white)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                    .fullScreenCover(isPresented: $showSignInForClaim) {
+                        NavigationStack {
+                            SignInGateView()
+                                .toolbar {
+                                    ToolbarItem(placement: .topBarLeading) {
+                                        Button("Cancel") { showSignInForClaim = false }
+                                            .foregroundColor(.white)
+                                    }
+                                }
+                        }
                     }
                 }
             }
