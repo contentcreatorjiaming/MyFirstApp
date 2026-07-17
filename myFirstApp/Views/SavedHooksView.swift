@@ -26,17 +26,32 @@ struct SavedHooksView: View {
     var body: some View {
         VStack(spacing: 0) {
             if !session.isSignedIn {
-                VStack(spacing: 16) {
-                    Spacer()
-                    Image(systemName: "person.crop.circle")
-                        .font(.system(size: 40))
-                        .foregroundColor(.white.opacity(0.6))
-                    Text("Sign in to see your hooks")
-                        .font(HPFont.heading)
-                        .foregroundColor(.white)
-                    NavigationLink { SignInGateView() } label: { Text("SIGN IN") }
-                        .buttonStyle(HPSecondaryButtonStyle())
-                    Spacer()
+                ZStack {
+                    HPGradientBackground()
+                    VStack {
+                        Spacer()
+                        VStack(spacing: 0) {
+                            Text("hook").font(HPFont.screenTitle)
+                            Text("playground").font(HPFont.screenTitle)
+                        }.foregroundColor(.white)
+                        Spacer().frame(height: 36)
+                        HStack(spacing: 14) {
+                            NavigationLink {
+                                SignInGateView()
+                            } label: {
+                                Text("SIGN IN")
+                            }
+                            .buttonStyle(HPButtonStyle(color: HPColor.pastelBlue))
+
+                            NavigationLink {
+                                SignInGateView()
+                            } label: {
+                                Text("SIGN UP")
+                            }
+                            .buttonStyle(HPButtonStyle(color: HPColor.pastelPink))
+                        }
+                        Spacer()
+                    }
                 }
             } else {
                 Picker("", selection: $selectedTab) {

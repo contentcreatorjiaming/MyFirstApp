@@ -138,19 +138,20 @@ struct TestHooksPageView: View {
 
     private var completionState: some View {
         VStack(spacing: 20) {
-            Image(systemName: "checkmark.circle")
+            Text("🎉")
                 .font(.system(size: 60))
-                .foregroundColor(.white)
             Text("You've reviewed all hooks!")
                 .font(HPFont.heading)
                 .foregroundColor(.white)
             Text("\(testHooks.count) hooks rated")
                 .font(HPFont.body)
                 .foregroundColor(.white.opacity(0.7))
-            Button("Start Over") {
-                currentIndex = 0
-            }
-            .buttonStyle(HPSecondaryButtonStyle())
+            HStack(spacing: 14) {
+                NavigationLink { SavedHooksView() } label: { Text("SEE MY RATINGS") }
+                    .buttonStyle(HPButtonStyle(color: HPColor.pastelBlue, fullWidth: true))
+                NavigationLink { CreateHubView() } label: { Text("ADD MY OWN") }
+                    .buttonStyle(HPButtonStyle(color: HPColor.pastelPink, fullWidth: true))
+            }.padding(.horizontal, 20)
         }
     }
 

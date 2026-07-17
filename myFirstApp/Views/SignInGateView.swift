@@ -22,17 +22,19 @@ struct SignInGateView: View {
 private struct AuthChoiceView: View {
     @State private var showForm = false
     @State private var isSignUp = false
-
+    
     var body: some View {
         ZStack {
             HPGradientBackground()
+        }
+    }
+}
             if showForm {
                 AuthFormView(isSignUp: isSignUp)
             } else {
                 VStack {
                     Spacer()
                     VStack(spacing: 0) {
-                    Spacer()
                         Text("hook").font(HPFont.screenTitle)
                         Text("playground").font(HPFont.screenTitle)
                     }.foregroundColor(.white)
@@ -60,8 +62,8 @@ private struct AuthFormView: View {
 
     var body: some View {
         VStack(spacing: 24) {
+            Spacer()
             VStack(spacing: 0) {
-                    Spacer()
                 Text("hook").font(HPFont.heroTitleSmall)
                 Text("playground").font(HPFont.heroTitleSmall)
             }.foregroundColor(.white)
@@ -89,6 +91,7 @@ private struct AuthFormView: View {
                 .buttonStyle(HPButtonStyle(color: HPColor.ink))
                 .disabled(username.isEmpty || password.isEmpty)
                 .opacity(username.isEmpty || password.isEmpty ? 0.5 : 1)
+            Spacer()
         }
     }
 
