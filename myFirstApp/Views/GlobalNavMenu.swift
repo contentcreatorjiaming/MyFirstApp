@@ -37,7 +37,7 @@ struct HookPlaygroundTitle: View {
     }
 }
 
-private struct NavMenuOverlay: View {
+struct NavMenuOverlay: View {
     @Binding var isPresented: Bool
     @EnvironmentObject private var session: UserSession
 
