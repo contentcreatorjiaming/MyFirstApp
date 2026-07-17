@@ -32,6 +32,7 @@ private struct AuthChoiceView: View {
                 VStack {
                     Spacer()
                     VStack(spacing: 0) {
+                    Spacer()
                         Text("hook").font(HPFont.screenTitle)
                         Text("playground").font(HPFont.screenTitle)
                     }.foregroundColor(.white)
@@ -60,6 +61,7 @@ private struct AuthFormView: View {
     var body: some View {
         VStack(spacing: 24) {
             VStack(spacing: 0) {
+                    Spacer()
                 Text("hook").font(HPFont.heroTitleSmall)
                 Text("playground").font(HPFont.heroTitleSmall)
             }.foregroundColor(.white)
