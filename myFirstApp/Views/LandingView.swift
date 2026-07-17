@@ -100,22 +100,21 @@ struct LandingView: View {
             Spacer()
 
             VStack(spacing: 28) {
-                NavigationLink {
-                    ResearchGridView()
-                } label: {
-                    menuLabel("EXPLORE")
+                NavigationLink { ResearchGridView() } label: { menuLabel("EXPLORE") }
+                NavigationLink { SignInGateView() } label: { menuLabel("CREATE") }
+
+                if session.isSignedIn {
+                    NavigationLink { TestHooksPageView() } label: { menuLabel("SWIPE OR STAY") }
                 }
 
-                NavigationLink {
-                    SignInGateView()
-                } label: {
-                    menuLabel("CREATE")
-                }
+                NavigationLink { SavedHooksView() } label: { menuLabel("SAVED HOOKS") }
+                NavigationLink { FeedbackView() } label: { menuLabel("FEEDBACK") }
 
-                NavigationLink {
-                    SavedHooksView()
-                } label: {
-                    menuLabel("SAVED HOOKS")
+                if session.isSignedIn {
+                    Button {
+                        session.signOut()
+                        menuOpen = false
+                    } label: { menuLabel("SIGN OUT") }
                 }
             }
             .transition(.opacity.combined(with: .move(edge: .bottom)))
