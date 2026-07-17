@@ -54,7 +54,7 @@ private struct NavMenuOverlay: View {
                         VStack(spacing: 0) {
                             if session.isSignedIn {
                                 Text("\(session.displayName)'s")
-                                    .font(HPFont.brandRegular(size: 14))
+                                    .font(HPFont.brandRegular(size: 28))
                                     .foregroundColor(.white.opacity(0.7))
                             }
                             Text("hook")
@@ -82,10 +82,12 @@ private struct NavMenuOverlay: View {
                             menuLabel("CREATE")
                         }
 
-                        NavigationLink {
-                            TestHooksPageView()
-                        } label: {
-                            menuLabel("SWIPE OR STAY")
+                        if session.isSignedIn {
+                            NavigationLink {
+                                TestHooksPageView()
+                            } label: {
+                                menuLabel("SWIPE OR STAY")
+                            }
                         }
 
                         NavigationLink {

@@ -78,7 +78,7 @@ struct LandingView: View {
         VStack(spacing: 0) {
             if session.isSignedIn {
                 Text("\(session.displayName)'s")
-                    .font(HPFont.brandRegular(size: 14))
+                    .font(HPFont.brandRegular(size: 28))
                     .foregroundColor(.white.opacity(0.7))
                     .padding(.top, 55)
             }
