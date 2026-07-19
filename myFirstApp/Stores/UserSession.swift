@@ -16,6 +16,9 @@ final class UserSession: ObservableObject {
     @AppStorage("displayName") var displayName: String = ""
     @AppStorage("userPassword") private var storedPassword: String = ""
 
+    /// The single source of truth every gated screen (bookmark, swipe,
+    /// saved hooks) checks before allowing an action — sign-in state is
+    /// derived, not stored separately, so it can never drift out of sync.
     var isSignedIn: Bool {
         !displayName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
