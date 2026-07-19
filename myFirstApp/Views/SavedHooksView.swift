@@ -83,7 +83,9 @@ struct SavedHooksView: View {
     // MARK: - Saved from explore
 
     private var savedList: some View {
-        let saved = store.hooks.filter { bookmarks.isSaved($0.id) && $0.source == .existing }
+        // Includes both bookmarked explore hooks AND the user's own
+        // tested hooks (auto-bookmarked on submit in TestNewHookView).
+        let saved = store.hooks.filter { bookmarks.isSaved($0.id) }
         return Group {
             if saved.isEmpty {
                 emptyState("No saved hooks yet", sub: "Bookmark the hooks that grab you — from creators across the playground.")
