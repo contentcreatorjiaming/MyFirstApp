@@ -21,7 +21,7 @@ struct FeedbackView: View {
 
                 HookPlaygroundTitle(size: 32, twoLines: true)
 
-                Text("created by jiaming")
+                Text("Created by jiaming")
                     .font(HPFont.heading)
                     .foregroundColor(.white)
                 Divider().background(.white.opacity(0.3)).padding(.horizontal, 60)
@@ -31,7 +31,7 @@ struct FeedbackView: View {
                         UIApplication.shared.open(url)
                     }
                 } label: {
-                    Text("instagram @rhymingjiaming")
+                    Text("Instagram @rhymingjiaming")
                         .font(HPFont.body)
                         .foregroundColor(HPColor.backgroundDark)
                         .underline()
@@ -43,7 +43,7 @@ struct FeedbackView: View {
 
                 Spacer().frame(height: 20)
 
-                Text("tap the green heart if you enjoyed this app")
+                Text("Tap the green heart if you enjoyed this app")
                     .font(HPFont.caption)
                     .foregroundColor(.white.opacity(0.7))
 

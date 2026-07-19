@@ -145,8 +145,7 @@ private struct ResearchCard: View {
                             .foregroundColor(HPColor.backgroundDark.opacity(0.6))
                         Spacer()
                         HStack(spacing: 8) {
-                            BookmarkButton(hookID: hook.id, tint: HPColor.backgroundDark)
-                            Text("see more →")
+                            Text("See more →")
                                 .font(HPFont.caption)
                                 .foregroundColor(HPColor.backgroundDark)
                                 .padding(.horizontal, 10)
@@ -155,7 +154,7 @@ private struct ResearchCard: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
                     }
-                    Text("added by \(hook.authorDisplayName)")
+                    Text("Added by \(hook.authorDisplayName)")
                         .font(HPFont.caption)
                         .foregroundColor(HPColor.backgroundDark.opacity(0.6))
                 }

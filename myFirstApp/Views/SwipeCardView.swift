@@ -15,7 +15,6 @@ struct SwipeCardView: View {
 
     @State private var dragOffset: CGFloat = 0
     @State private var dismissed = false
-    @State private var gradientPhase: CGFloat = 0
 
     private let swipeThreshold: CGFloat = 120
 
@@ -61,7 +60,7 @@ struct SwipeCardView: View {
                         dismissCard(direction: .left)
                     } label: {
                         VStack(spacing: 4) {
-                            Image(systemName: "hand.thumbsdown")
+                            Image(systemName: "xmark")
                                 .font(.title)
                             Text("SWIPE")
                                 .font(HPFont.caption)
@@ -76,7 +75,7 @@ struct SwipeCardView: View {
                         dismissCard(direction: .right)
                     } label: {
                         VStack(spacing: 4) {
-                            Image(systemName: "hand.thumbsup")
+                            Image(systemName: "checkmark")
                                 .font(.title)
                             Text("STAY")
                                 .font(HPFont.caption)
@@ -89,11 +88,6 @@ struct SwipeCardView: View {
                 }
             }
             .padding()
-        }
-        .onAppear {
-            withAnimation(.easeInOut(duration: 4).repeatForever(autoreverses: true)) {
-                gradientPhase = 1
-            }
         }
     }
 
@@ -133,18 +127,15 @@ struct SwipeCardView: View {
 
     // MARK: - Gradient
 
+    // Transparent when idle so the aurora background shows through;
+    // tints blue/pink as the user drags toward stay/swipe.
     private var gradientColors: [Color] {
         if dragProgress > 0.1 {
-            return [HPColor.background, HPColor.pastelBlue.opacity(Double(dragProgress))]
+            return [Color.clear, HPColor.pastelBlue.opacity(Double(dragProgress) * 0.8)]
         } else if dragProgress < -0.1 {
-            return [HPColor.pastelPink.opacity(Double(abs(dragProgress))), HPColor.background]
+            return [HPColor.pastelPink.opacity(Double(abs(dragProgress)) * 0.8), Color.clear]
         }
-        // Idle: slowly shifting green tones
-        let shift = sin(gradientPhase * .pi) * 0.15
-        return [
-            HPColor.background.opacity(1 - shift),
-            Color(red: 0.45 + shift, green: 0.78, blue: 0.55 + shift)
-        ]
+        return [Color.clear, Color.clear]
     }
 
     // MARK: - Gesture

@@ -27,7 +27,7 @@ struct TestHooksPageView: View {
 
     var body: some View {
         ZStack {
-            HPGradientBackground()
+            AuroraBackground()
 
             if !session.isSignedIn {
                 signInPrompt
@@ -163,11 +163,11 @@ struct TestHooksPageView: View {
                 .font(HPFont.heading)
                 .foregroundColor(.white)
 
-            Text("Want to say why? (optional)")
+            Text("Want to say why?")
                 .font(HPFont.body)
                 .foregroundColor(.white.opacity(0.8))
 
-            TextField("leave an optional message", text: $feedbackText)
+            TextField("Leave an optional message", text: $feedbackText)
                 .font(HPFont.body)
                 .padding(14)
                 .background(Color.white)
@@ -183,7 +183,7 @@ struct TestHooksPageView: View {
                     .opacity(feedbackText.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1)
             }
 
-            Text("swipe up to skip · swipe down to send")
+            Text("Swipe up to skip · Swipe down to send")
                 .font(HPFont.caption)
                 .foregroundColor(.white.opacity(0.6))
         }

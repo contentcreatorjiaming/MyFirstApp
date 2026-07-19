@@ -76,16 +76,28 @@ struct AddExistingHookView: View {
         }
     }
 
+    /// Parses "249,166", " 22182 ", "3.3K" etc. into an Int.
+    private func parseMetric(_ raw: String) -> Int? {
+        var s = raw.trimmingCharacters(in: .whitespaces)
+            .replacingOccurrences(of: ",", with: "")
+            .lowercased()
+        var multiplier = 1.0
+        if s.hasSuffix("k") { multiplier = 1_000; s.removeLast() }
+        else if s.hasSuffix("m") { multiplier = 1_000_000; s.removeLast() }
+        guard let value = Double(s) else { return nil }
+        return Int(value * multiplier)
+    }
+
     private var isValid: Bool {
         !linkURL.trimmingCharacters(in: .whitespaces).isEmpty &&
-        [views, shares, likes, saves, reposts, comments].allSatisfy { Int($0) != nil }
+        [views, shares, likes, saves, reposts, comments].allSatisfy { parseMetric($0) != nil }
     }
 
     private func save() {
         let metrics = HookMetrics(
-            views: Int(views) ?? 0, shares: Int(shares) ?? 0,
-            likes: Int(likes) ?? 0, saves: Int(saves) ?? 0,
-            reposts: Int(reposts) ?? 0, comments: Int(comments) ?? 0
+            views: parseMetric(views) ?? 0, shares: parseMetric(shares) ?? 0,
+            likes: parseMetric(likes) ?? 0, saves: parseMetric(saves) ?? 0,
+            reposts: parseMetric(reposts) ?? 0, comments: parseMetric(comments) ?? 0
         )
         let hook = Hook(
             id: UUID(), source: .existing, kind: .link,
