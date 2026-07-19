@@ -112,6 +112,7 @@ struct ReactionBarView: View {
                             Text(entry.feedback ?? "")
                                 .font(HPFont.body)
                                 .foregroundColor(HPColor.textDark)
+                                .multilineTextAlignment(.leading)
                         }
                         Spacer()
                     }

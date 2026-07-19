@@ -18,6 +18,7 @@ struct TestNewHookView: View {
     }
     @EnvironmentObject private var session: UserSession
     @EnvironmentObject private var store: HookStore
+    @EnvironmentObject private var bookmarks: BookmarkStore
 
     @State private var kind: HookKind = .text
     @State private var textContent: String = ""
@@ -36,14 +37,18 @@ struct TestNewHookView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 Picker("Hook type", selection: $kind) {
-                    Text("Text").tag(HookKind.text)
+                    Text("Hook").tag(HookKind.text)
                     Text("Video").tag(HookKind.video)
                 }
                 .pickerStyle(.segmented)
 
-                Text("Instagram recommends keeping hooks under 75 characters. Use multiple clips in the first few seconds or a stop-motion frame to grab attention instantly.")
+                Text(kind == .video
+                     ? "Use multiple clips in the first few seconds or a stop-motion frame to grab attention instantly."
+                     : "Instagram recommends keeping hooks under 75 characters.")
                     .font(HPFont.caption)
                     .foregroundColor(.white.opacity(0.7))
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
                 contentField
 
@@ -59,7 +64,7 @@ struct TestNewHookView: View {
         .background(HPColor.background)
         .toolbarBackground(HPColor.background, for: .navigationBar)
         .navigationDestination(isPresented: $navigateToTestHooks) {
-            TestHooksPageView()
+            SavedHooksView()
         }
         .fullScreenCover(isPresented: $showCamera) {
             VideoCaptureView(videoURL: $videoURL, maxDuration: maxVideoDuration)
@@ -75,9 +80,10 @@ struct TestNewHookView: View {
     private var contentField: some View {
         switch kind {
         case .text:
-            VStack(alignment: .trailing, spacing: 4) {
+            VStack(alignment: .leading, spacing: 4) {
                 TextEditor(text: $textContent)
                     .font(HPFont.body)
+                    .multilineTextAlignment(.leading)
                     .frame(height: 100)
                     .padding(4)
                     .background(Color.white)
@@ -85,6 +91,7 @@ struct TestNewHookView: View {
                 Text("\(textContent.count)/\(textCharacterLimit)")
                     .font(HPFont.caption)
                     .foregroundColor(textContent.count > textCharacterLimit ? .red : HPColor.textSecondary)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
                 if textContent.count > textCharacterLimit {
                     Text("Hook exceeds \(textCharacterLimit) characters — keep it short and punchy!")
                         .font(HPFont.caption)
@@ -184,6 +191,8 @@ struct TestNewHookView: View {
             aiSummary: nil, skipRate: nil, claimedBy: nil
         )
         store.add(hook)
+        // Hooks sent to Test automatically land in the Saved list.
+        bookmarks.add(hook.id)
         navigateToTestHooks = true
     }
 }

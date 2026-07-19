@@ -12,11 +12,21 @@ struct LandingView: View {
     @EnvironmentObject private var session: UserSession
     @State private var menuOpen = false
 
+    // Flip to true to bring back the ballpit background version.
+    private let useBallpit = false
+
     var body: some View {
         NavigationStack {
             ZStack {
                 HPGradientBackground()
-                PlaygroundAnimation()
+                if useBallpit {
+                    BallpitBackground()
+                } else {
+                    PlaygroundAnimation(
+                        showSeesaw: !(menuOpen && session.isSignedIn),
+                        seesawY: menuOpen ? 0.72 : 0.57
+                    )
+                }
 
                 VStack(spacing: 0) {
                     if menuOpen {
@@ -102,11 +112,7 @@ struct LandingView: View {
             VStack(spacing: 28) {
                 NavigationLink { ResearchGridView() } label: { menuLabel("EXPLORE") }
                 NavigationLink { SignInGateView() } label: { menuLabel("CREATE") }
-
-                if session.isSignedIn {
-                    NavigationLink { TestHooksPageView() } label: { menuLabel("SWIPE OR STAY") }
-                }
-
+                NavigationLink { TestHooksPageView() } label: { menuLabel("STAY OR SWIPE") }
                 NavigationLink { SavedHooksView() } label: { menuLabel("SAVED HOOKS") }
                 NavigationLink { FeedbackView() } label: { menuLabel("FEEDBACK") }
 

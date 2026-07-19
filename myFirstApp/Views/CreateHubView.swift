@@ -11,31 +11,33 @@ struct CreateHubView: View {
     var body: some View {
         ZStack {
             HPGradientBackground()
+            PlaygroundAnimation()
 
-            VStack {
+            // Mirrors the main menu (LandingView) layout: title above
+            // the button row, weighted toward the upper half.
+            VStack(spacing: 36) {
                 Spacer()
 
-                HookPlaygroundTitle(size: 40, twoLines: true)
+                HookPlaygroundTitle(size: 52, twoLines: true)
 
-                Spacer().frame(height: 36)
-
-                HStack(spacing: 14) {
+                HStack(spacing: 16) {
                     NavigationLink {
                         AddExistingHookView()
                     } label: {
                         Text("ADD")
                     }
-                    .buttonStyle(HPButtonStyle(color: HPColor.pastelPink, fullWidth: true))
+                    .buttonStyle(HPButtonStyle(color: HPColor.pastelPink))
 
                     NavigationLink {
                         TestNewHookView()
                     } label: {
                         Text("TEST")
                     }
-                    .buttonStyle(HPButtonStyle(color: HPColor.pastelBlue, fullWidth: true))
+                    .buttonStyle(HPButtonStyle(color: HPColor.pastelBlue))
                 }
                 .padding(.horizontal, 32)
 
+                Spacer()
                 Spacer()
             }
         }

@@ -19,9 +19,23 @@ struct HookDetailView: View {
     @State private var skipRateInput: String = ""
     @State private var showSignInForClaim = false
     @State private var showMenu = false
+    @State private var isEditingSummary = false
+    @State private var summaryEditText: String = ""
+    @State private var showSignInForSummary = false
 
     private var isOwnHook: Bool {
         session.isSignedIn && hook.authorDisplayName == session.displayName
+    }
+
+    /// Live copy from the store so in-place edits (text, AI summary) refresh.
+    private var liveHook: Hook {
+        store.hooks.first(where: { $0.id == hook.id }) ?? hook
+    }
+
+    private var displayedSummary: String? {
+        if let s = liveHook.aiSummary { return s }
+        if liveHook.metrics != nil { return AIInsightEngine.generateInsight(for: liveHook) }
+        return nil
     }
 
     var body: some View {
@@ -47,7 +61,7 @@ struct HookDetailView: View {
                         }
                     } else {
                         Button {
-                            editText = hook.textContent ?? ""
+                            editText = liveHook.textContent ?? ""
                             isEditing = true
                         } label: {
                             Label("Edit", systemImage: "pencil")
@@ -69,28 +83,9 @@ struct HookDetailView: View {
                     metricsSection(metrics)
                 }
 
-                // AI Summary
-                if let summary = hook.aiSummary {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("AI Summary")
-                            .font(HPFont.heading)
-                            .foregroundColor(.white)
-                        Text(summary)
-                            .font(HPFont.body)
-                            .foregroundColor(.white.opacity(0.9))
-                            .padding(14)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color.white.opacity(0.15))
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                    }
-                } else if hook.metrics != nil {
-                    Text(AIInsightEngine.generateInsight(for: hook))
-                        .font(HPFont.body)
-                        .foregroundColor(.white.opacity(0.9))
-                        .padding(14)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.white.opacity(0.15))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                // AI Summary — editable by signed-in users
+                if let summary = displayedSummary {
+                    aiSummarySection(summary)
                 }
 
                 // Static reaction counts for test hooks (not interactive)
@@ -140,7 +135,9 @@ struct HookDetailView: View {
                 }
             }
             Spacer()
-            BookmarkButton(hookID: hook.id)
+            if hook.source == .existing {
+                BookmarkButton(hookID: hook.id)
+            }
         }
     }
 
@@ -150,9 +147,10 @@ struct HookDetailView: View {
     private var contentSection: some View {
         switch hook.kind {
         case .text:
-            Text(hook.textContent ?? "")
+            Text(liveHook.textContent ?? "")
                 .font(HPFont.body)
                 .foregroundColor(HPColor.backgroundDark)
+                .multilineTextAlignment(.leading)
                 .padding(16)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(Color.white)
@@ -179,6 +177,7 @@ struct HookDetailView: View {
                         .foregroundColor(HPColor.backgroundDark)
                         .lineLimit(2)
                         .underline()
+                        .multilineTextAlignment(.leading)
                 }
                 .padding(16)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -247,7 +246,65 @@ struct HookDetailView: View {
         return "\(n)"
     }
 
-    // MARK: - AI Insight (removed label, kept in body)
+    // MARK: - AI Summary
+
+    private func aiSummarySection(_ summary: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("AI Summary")
+                    .font(HPFont.heading)
+                    .foregroundColor(.white)
+                Spacer()
+                if !isEditingSummary {
+                    Button {
+                        if session.isSignedIn {
+                            summaryEditText = summary
+                            isEditingSummary = true
+                        } else {
+                            showSignInForSummary = true
+                        }
+                    } label: {
+                        Label("Edit", systemImage: "pencil")
+                            .font(HPFont.caption)
+                            .foregroundColor(.white)
+                    }
+                }
+            }
+
+            if isEditingSummary {
+                TextEditor(text: $summaryEditText)
+                    .font(HPFont.body)
+                    .frame(height: 120)
+                    .padding(4)
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                Button("Save Edit") {
+                    store.updateAISummary(hookID: hook.id, newSummary: summaryEditText)
+                    isEditingSummary = false
+                }
+                .buttonStyle(HPSecondaryButtonStyle())
+            } else {
+                Text(summary)
+                    .font(HPFont.body)
+                    .foregroundColor(.white.opacity(0.9))
+                    .padding(14)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.white.opacity(0.15))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+        }
+        .fullScreenCover(isPresented: $showSignInForSummary) {
+            NavigationStack {
+                SignInGateView()
+                    .toolbar {
+                        ToolbarItem(placement: .topBarLeading) {
+                            Button("Cancel") { showSignInForSummary = false }
+                                .foregroundColor(.white)
+                        }
+                    }
+            }
+        }
+    }
 
     // MARK: - Static reaction counts (non-interactive)
 
@@ -300,6 +357,7 @@ struct HookDetailView: View {
                                     Text(entry.feedback ?? "")
                                         .font(HPFont.body)
                                         .foregroundColor(HPColor.textDark)
+                                        .multilineTextAlignment(.leading)
                                 }
                                 Spacer()
                             }
@@ -321,6 +379,7 @@ struct HookDetailView: View {
                                         Text(reply.feedback?.replacingOccurrences(of: "↳ @\(entry.authorDisplayName): ", with: "") ?? "")
                                             .font(HPFont.caption)
                                             .foregroundColor(HPColor.textDark)
+                                            .multilineTextAlignment(.leading)
                                     }
                                 }
                                 .padding(.leading, 30)
@@ -401,7 +460,7 @@ struct HookDetailView: View {
                         }
                         .foregroundColor(HPColor.backgroundDark)
                         .padding(14)
-                        .frame(maxWidth: .infinity)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Color.white)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                     }

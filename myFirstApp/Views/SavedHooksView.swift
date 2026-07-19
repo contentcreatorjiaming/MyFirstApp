@@ -127,6 +127,8 @@ struct SavedHooksView: View {
                                         Text("Your note: \(fb)")
                                             .font(HPFont.caption)
                                             .foregroundColor(HPColor.backgroundDark.opacity(0.6))
+                                            .multilineTextAlignment(.leading)
+                                            .frame(maxWidth: .infinity, alignment: .leading)
                                             .padding(.horizontal, 14)
                                             .padding(.bottom, 8)
                                     }
@@ -169,6 +171,7 @@ struct SavedHooksView: View {
                     .font(HPFont.body)
                     .foregroundColor(HPColor.backgroundDark)
                     .lineLimit(2)
+                    .multilineTextAlignment(.leading)
                 Text(subtitle)
                     .font(HPFont.caption)
                     .foregroundColor(HPColor.backgroundDark.opacity(0.5))

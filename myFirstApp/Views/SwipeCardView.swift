@@ -105,6 +105,8 @@ struct SwipeCardView: View {
                 Text(text)
                     .font(HPFont.heading)
                     .foregroundColor(HPColor.backgroundDark)
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             } else if hook.kind == .video {
                 HStack {
                     Image(systemName: "video.fill")

@@ -19,6 +19,7 @@ struct AddExistingHookView: View {
     @State private var shares: String = ""
     @State private var comments: String = ""
     @State private var saves: String = ""
+    @State private var reposts: String = ""
     @State private var navigateToExplore = false
 
     var body: some View {
@@ -28,7 +29,7 @@ struct AddExistingHookView: View {
                     .font(HPFont.heading)
                     .foregroundColor(.white)
 
-                TextField("https://instagram.com/...", text: $linkURL)
+                TextField("", text: $linkURL, prompt: Text("Enter link here").foregroundColor(.gray))
                     .font(HPFont.body)
                     .foregroundColor(HPColor.backgroundDark)
                     .tint(HPColor.backgroundDark)
@@ -43,10 +44,11 @@ struct AddExistingHookView: View {
                     .foregroundColor(.white)
 
                 metricField("Views", text: $views, icon: "eye")
-                metricField("Likes", text: $likes, icon: "heart.fill")
                 metricField("Shares", text: $shares, icon: "arrowshape.turn.up.right.fill")
-                metricField("Comments", text: $comments, icon: "bubble.left.fill")
+                metricField("Likes", text: $likes, icon: "heart.fill")
                 metricField("Saves", text: $saves, icon: "bookmark.fill")
+                metricField("Reposts", text: $reposts, icon: "arrow.2.squarepath")
+                metricField("Comments", text: $comments, icon: "bubble.left.fill")
 
                 Button("SAVE") { save() }
                     .buttonStyle(HPSecondaryButtonStyle())
@@ -76,14 +78,14 @@ struct AddExistingHookView: View {
 
     private var isValid: Bool {
         !linkURL.trimmingCharacters(in: .whitespaces).isEmpty &&
-        [views, likes, shares, comments, saves].allSatisfy { Int($0) != nil }
+        [views, shares, likes, saves, reposts, comments].allSatisfy { Int($0) != nil }
     }
 
     private func save() {
         let metrics = HookMetrics(
             views: Int(views) ?? 0, shares: Int(shares) ?? 0,
             likes: Int(likes) ?? 0, saves: Int(saves) ?? 0,
-            reposts: 0, comments: Int(comments) ?? 0
+            reposts: Int(reposts) ?? 0, comments: Int(comments) ?? 0
         )
         let hook = Hook(
             id: UUID(), source: .existing, kind: .link,

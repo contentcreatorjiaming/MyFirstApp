@@ -19,6 +19,7 @@ struct TestHooksPageView: View {
     @State private var lastHookID: UUID?
     @State private var feedbackText = ""
     @State private var showSentMessage = false
+    @State private var feedbackDragOffset: CGFloat = 0
 
     private var testHooks: [Hook] {
         store.hooks.filter { $0.source == .testNew }
@@ -84,6 +85,7 @@ struct TestHooksPageView: View {
     private func skipFeedback() {
         showFeedback = false
         feedbackText = ""
+        feedbackDragOffset = 0
         currentIndex += 1
     }
 
@@ -177,8 +179,43 @@ struct TestHooksPageView: View {
                     .buttonStyle(HPButtonStyle(color: HPColor.backgroundDark))
                 Button("Send") { submitFeedback() }
                     .buttonStyle(HPButtonStyle(color: HPColor.backgroundDark))
+                    .disabled(feedbackText.trimmingCharacters(in: .whitespaces).isEmpty)
+                    .opacity(feedbackText.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1)
             }
+
+            Text("swipe up to skip · swipe down to send")
+                .font(HPFont.caption)
+                .foregroundColor(.white.opacity(0.6))
         }
         .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .contentShape(Rectangle())
+        .offset(y: feedbackDragOffset)
+        .opacity(1 - min(abs(feedbackDragOffset) / 700, 0.6))
+        .gesture(
+            DragGesture(minimumDistance: 10)
+                .onChanged { value in
+                    // Vertical swipes only — the prompt tracks the finger.
+                    guard abs(value.translation.height) > abs(value.translation.width) else { return }
+                    feedbackDragOffset = value.translation.height
+                }
+                .onEnded { value in
+                    let canSend = !feedbackText.trimmingCharacters(in: .whitespaces).isEmpty
+                    if value.translation.height < -50 {
+                        // Slide off the top, then skip
+                        withAnimation(.easeIn(duration: 0.25)) { feedbackDragOffset = -900 }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { skipFeedback() }
+                    } else if value.translation.height > 50, canSend {
+                        // Slide off the bottom, then send
+                        withAnimation(.easeIn(duration: 0.25)) { feedbackDragOffset = 900 }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { submitFeedback() }
+                    } else {
+                        // Not far enough (or nothing to send) — spring back
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                            feedbackDragOffset = 0
+                        }
+                    }
+                }
+        )
     }
 }
