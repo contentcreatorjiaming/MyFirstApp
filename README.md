@@ -9,14 +9,15 @@ one that decides whether their video flops.
 
 ## The problem
 
-The first two seconds of a video decide everything, but new creators have no
+The first three seconds of a video decide everything, but new creators have no
 way to know whether a hook works until it's already public. Established
-creators workshop content with teams and peers; beginners guess, alone.
+creators follow formats that already work for them or have teams; beginners 
+guess, alone.
 
-## What it does
+## What the app does
 
-- **Explore** — browse 20 real Instagram reels with actual captions, a 2×3
-  performance-metric grid, and an insight summary per hook.
+- **Explore** — browse real Instagram reels and filter by publicly available metrics (views, likes, saves, shares, reposts - whichever metric the user wants to improve). Save  and an insight summary per hook.
+- **Create** - 
 - **Swipe to react** — Stay ("I'd keep watching") or Swipe ("I'd scroll past")
   on other creators' hooks, with a full-screen completion celebration.
 - **Community feedback** — optional written feedback on every reaction, with

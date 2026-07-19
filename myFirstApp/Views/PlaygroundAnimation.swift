@@ -14,9 +14,10 @@ struct PlaygroundAnimation: View {
     /// Hide the seesaw when the signed-in menu is showing, since it
     /// sits exactly where the SIGN OUT button appears.
     var showSeesaw: Bool = true
-    /// Vertical position of the seesaw: right under the pink/blue
-    /// buttons by default; menu screens pass the SIGN OUT spot instead.
-    var seesawY: CGFloat = 0.57
+    /// Vertical position of the seesaw: halfway between the button row
+    /// and the next icons (the slide, at 0.70) by default; menu screens
+    /// pass the SIGN OUT spot instead.
+    var seesawY: CGFloat = 0.64
 
     @State private var drawProgress: CGFloat = 0
     @State private var swingPhase: Double = -1     // -1...1
