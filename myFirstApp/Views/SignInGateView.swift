@@ -38,7 +38,7 @@ private struct AuthChoiceView: View {
             }
             if showForm {
                 AuthFormView(isSignUp: isSignUp)
-                ;           } else {
+            } else {
                 // Mirrors the homepage layout exactly
                 VStack(spacing: 36) {
                     Spacer()
@@ -46,6 +46,10 @@ private struct AuthChoiceView: View {
                         Text("hook").font(HPFont.heroTitle)
                         Text("playground").font(HPFont.heroTitle)
                     }.foregroundColor(.white)
+                    Text("test your hooks with creators like you")
+                        .font(HPFont.body)
+                        .foregroundColor(.white.opacity(0.85))
+                        .padding(.top, -20)
                     HStack(spacing: 16) {
                         Button("SIGN IN") { isSignUp = false; showForm = true }
                             .buttonStyle(HPButtonStyle(color: HPColor.pastelBlue))

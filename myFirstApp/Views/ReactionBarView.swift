@@ -68,6 +68,8 @@ struct ReactionBarView: View {
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(type == .stay ? "Stay: this hook would keep me watching" : "Swipe: I would scroll past this hook")
+        .accessibilityValue(String(count) + " creators so far")
     }
 
     private var currentReaction: ReactionType? {

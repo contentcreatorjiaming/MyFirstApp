@@ -28,6 +28,7 @@ struct BookmarkButton: View {
                 .shadow(color: .black.opacity(tint == .white ? 0.4 : 0), radius: 2, x: 0, y: 1)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(bookmarks.isSaved(hookID) ? "Remove saved hook" : "Save hook")
         .fullScreenCover(isPresented: $showSignIn) {
             NavigationStack {
                 SignInGateView()

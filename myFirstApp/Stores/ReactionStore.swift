@@ -80,6 +80,18 @@ final class ReactionStore: ObservableObject {
         reactions(for: hookID).contains { $0.authorDisplayName == author }
     }
 
+    /// Deduplicates reactions so only a user's most recent reaction per hook counts.
+    /// Later entries in the array win, so re-reacting to a hook replaces the earlier
+    /// verdict — this is the rule that keeps the Stayed/Swiped tabs honest.
+    /// Pure function (no store state) so it is directly unit-testable.
+    nonisolated static func latestReactions(perHookFrom reactions: [Reaction], by author: String) -> [Reaction] {
+        var latestByHook: [UUID: Reaction] = [:]
+        for r in reactions where r.authorDisplayName == author {
+            latestByHook[r.hookID] = r
+        }
+        return Array(latestByHook.values)
+    }
+
     /// Seeds mock community reactions for a set of hook IDs so the app
     /// doesn't look empty during demo. Only runs once (checks if reactions
     /// already exist for those hooks).

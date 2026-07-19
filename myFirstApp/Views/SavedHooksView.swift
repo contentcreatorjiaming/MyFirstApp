@@ -86,7 +86,7 @@ struct SavedHooksView: View {
         let saved = store.hooks.filter { bookmarks.isSaved($0.id) && $0.source == .existing }
         return Group {
             if saved.isEmpty {
-                emptyState("No saved hooks yet", sub: "Bookmark hooks from Explore to see them here.")
+                emptyState("No saved hooks yet", sub: "Bookmark the hooks that grab you — from creators across the playground.")
             } else {
                 LazyVStack(spacing: 12) {
                     ForEach(saved) { hook in
@@ -102,20 +102,15 @@ struct SavedHooksView: View {
     // MARK: - Stayed / Swiped
 
     private func reactionList(type: ReactionType) -> some View {
-        // Get ALL user reactions, take latest per hookID, then filter by type
-        let allUserReactions = reactionStore.reactions.filter {
-            $0.authorDisplayName == session.displayName
-        }
-        var latestByHook: [UUID: Reaction] = [:]
-        for r in allUserReactions {
-            latestByHook[r.hookID] = r // last one wins
-        }
-        let matching = latestByHook.values.filter { $0.type == type }
+        // Latest reaction per hook wins — see ReactionStore.latestReactions.
+        let matching = ReactionStore
+            .latestReactions(perHookFrom: reactionStore.reactions, by: session.displayName)
+            .filter { $0.type == type }
         let label = type == .stay ? "stayed for" : "swiped past"
 
         return Group {
             if matching.isEmpty {
-                emptyState("No hooks \(label) yet", sub: "Use Swipe or Stay to rate test hooks.")
+                emptyState("No hooks \(label) yet", sub: "Swipe or Stay on other creators' hooks to help them test what works.")
             } else {
                 LazyVStack(spacing: 12) {
                     ForEach(Array(matching), id: \.id) { reaction in

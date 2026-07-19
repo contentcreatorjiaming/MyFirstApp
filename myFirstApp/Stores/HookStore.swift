@@ -29,16 +29,22 @@ final class HookStore: ObservableObject {
         load()
     }
 
+    /// Appends a new hook (from Create/Test) and persists immediately —
+    /// this store has no in-memory-only mode, so every write is durable.
     func add(_ hook: Hook) {
         hooks.append(hook)
         save()
     }
 
+    /// Wipes only the seeded `.existing` demo hooks, leaving anything the
+    /// user created themselves untouched. Used when reseeding a newer
+    /// content version (see SeedData's `hasSeededHooks_vN` versioning).
     func clearExistingSeeded() {
         hooks.removeAll(where: { $0.source == .existing })
         save()
     }
 
+    /// Lets a creator edit their own hook's text after posting it for testing.
     func updateText(hookID: UUID, newText: String) {
         if let index = hooks.firstIndex(where: { $0.id == hookID }) {
             hooks[index].textContent = newText
@@ -46,6 +52,7 @@ final class HookStore: ObservableObject {
         }
     }
 
+    /// Overwrites the AI-generated insight summary shown on a hook's detail page.
     func updateAISummary(hookID: UUID, newSummary: String) {
         if let index = hooks.firstIndex(where: { $0.id == hookID }) {
             hooks[index].aiSummary = newSummary
@@ -53,6 +60,9 @@ final class HookStore: ObservableObject {
         }
     }
 
+    /// Attaches a real-world outcome (who posted it, what its actual skip
+    /// rate turned out to be) to a hook that was tested in the playground
+    /// first — this is what closes the loop between prediction and result.
     func claimHook(hookID: UUID, by username: String, skipRate: Double) {
         if let index = hooks.firstIndex(where: { $0.id == hookID }) {
             hooks[index].claimedBy = username

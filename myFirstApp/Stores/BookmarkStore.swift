@@ -20,6 +20,9 @@ final class BookmarkStore: ObservableObject {
         load()
     }
 
+    /// Whether the given hook is currently in the user's saved set.
+    /// O(1) lookup since savedIDs is a Set, not an Array — matters once
+    /// this is called per-row in a scrolling list.
     func isSaved(_ hookID: UUID) -> Bool {
         savedIDs.contains(hookID)
     }
@@ -32,6 +35,9 @@ final class BookmarkStore: ObservableObject {
         save()
     }
 
+    /// Flips saved state for a hook. This is the path used by the
+    /// bookmark button the user actually taps; `add` above is the
+    /// one-directional variant for programmatic saves.
     func toggle(_ hookID: UUID) {
         if savedIDs.contains(hookID) {
             savedIDs.remove(hookID)

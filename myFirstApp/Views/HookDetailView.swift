@@ -258,6 +258,8 @@ struct HookDetailView: View {
                     Text("Read this with a grain of salt; AI summary of what reel is about might not be 100% accurate. But that's where you can help!")
                         .font(HPFont.caption)
                         .foregroundColor(.white.opacity(0.75))
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 Spacer()
                 if !isEditingSummary {
@@ -292,6 +294,7 @@ struct HookDetailView: View {
                 Text(summary)
                     .font(HPFont.body)
                     .foregroundColor(.white.opacity(0.9))
+                    .multilineTextAlignment(.leading)
                     .padding(14)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color.white.opacity(0.15))
