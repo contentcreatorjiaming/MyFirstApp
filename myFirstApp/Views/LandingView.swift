@@ -59,6 +59,11 @@ struct LandingView: View {
             }
             .buttonStyle(.plain)
 
+            Text("test your hooks with creators like you")
+                .font(HPFont.body)
+                .foregroundColor(.white.opacity(0.85))
+                .padding(.top, -20)
+
             // Research + Create buttons
             HStack(spacing: 16) {
                 NavigationLink {

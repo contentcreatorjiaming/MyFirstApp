@@ -68,4 +68,32 @@ struct myFirstAppTests {
         #expect(await !store.isSaved(id))
     }
 
+    @Test func latestReactionPerHookWins() async throws {
+        // Core dedup rule: re-reacting to the same hook replaces the old verdict.
+        let hookID = UUID()
+        let older = Reaction(id: UUID(), hookID: hookID, type: .swipe,
+                             feedback: nil, authorDisplayName: "ivy",
+                             createdAt: Date().addingTimeInterval(-60))
+        let newer = Reaction(id: UUID(), hookID: hookID, type: .stay,
+                             feedback: nil, authorDisplayName: "ivy",
+                             createdAt: Date())
+        let result = ReactionStore.latestReactions(perHookFrom: [older, newer], by: "ivy")
+        #expect(result.count == 1)
+        #expect(result.first?.type == .stay)
+    }
+
+    @Test func latestReactionsOnlyCountsTheGivenAuthor() async throws {
+        // Another creator's reaction to the same hook must not leak into my tabs.
+        let hookID = UUID()
+        let mine = Reaction(id: UUID(), hookID: hookID, type: .stay,
+                            feedback: nil, authorDisplayName: "ivy",
+                            createdAt: Date())
+        let theirs = Reaction(id: UUID(), hookID: hookID, type: .swipe,
+                              feedback: nil, authorDisplayName: "someone_else",
+                              createdAt: Date())
+        let result = ReactionStore.latestReactions(perHookFrom: [mine, theirs], by: "ivy")
+        #expect(result.count == 1)
+        #expect(result.first?.authorDisplayName == "ivy")
+    }
+
 }
