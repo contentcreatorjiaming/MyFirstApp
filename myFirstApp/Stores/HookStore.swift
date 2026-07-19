@@ -46,6 +46,13 @@ final class HookStore: ObservableObject {
         }
     }
 
+    func updateAISummary(hookID: UUID, newSummary: String) {
+        if let index = hooks.firstIndex(where: { $0.id == hookID }) {
+            hooks[index].aiSummary = newSummary
+            save()
+        }
+    }
+
     func claimHook(hookID: UUID, by username: String, skipRate: Double) {
         if let index = hooks.firstIndex(where: { $0.id == hookID }) {
             hooks[index].claimedBy = username

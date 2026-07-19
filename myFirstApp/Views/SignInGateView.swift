@@ -7,6 +7,7 @@ import SwiftUI
 
 struct SignInGateView: View {
     @EnvironmentObject private var session: UserSession
+    @State private var showMainMenu = false
 
     var body: some View {
         Group {
@@ -15,6 +16,12 @@ struct SignInGateView: View {
             } else {
                 AuthChoiceView()
             }
+        }
+        .onChange(of: session.isSignedIn) { _, signedIn in
+            if signedIn { showMainMenu = true }
+        }
+        .fullScreenCover(isPresented: $showMainMenu) {
+            NavMenuOverlay(isPresented: $showMainMenu)
         }
     }
 }
@@ -26,22 +33,27 @@ private struct AuthChoiceView: View {
     var body: some View {
         ZStack {
             HPGradientBackground()
+            if !showForm {
+                PlaygroundAnimation()
+            }
             if showForm {
                 AuthFormView(isSignUp: isSignUp)
                 ;           } else {
-                VStack {
+                // Mirrors the homepage layout exactly
+                VStack(spacing: 36) {
                     Spacer()
                     VStack(spacing: 0) {
-                        Text("hook").font(HPFont.screenTitle)
-                        Text("playground").font(HPFont.screenTitle)
+                        Text("hook").font(HPFont.heroTitle)
+                        Text("playground").font(HPFont.heroTitle)
                     }.foregroundColor(.white)
-                    Spacer().frame(height: 36)
-                    HStack(spacing: 14) {
+                    HStack(spacing: 16) {
                         Button("SIGN IN") { isSignUp = false; showForm = true }
                             .buttonStyle(HPButtonStyle(color: HPColor.pastelBlue))
                         Button("SIGN UP") { isSignUp = true; showForm = true }
                             .buttonStyle(HPButtonStyle(color: HPColor.pastelPink))
                     }
+                    .padding(.horizontal, 32)
+                    Spacer()
                     Spacer()
                 }
             }

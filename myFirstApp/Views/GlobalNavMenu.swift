@@ -45,6 +45,7 @@ struct NavMenuOverlay: View {
         NavigationStack {
             ZStack {
                 HPGradientBackground()
+                PlaygroundAnimation(showSeesaw: !session.isSignedIn, seesawY: 0.72)
 
                 VStack(spacing: 0) {
                     // Small title — tap to close
@@ -82,12 +83,10 @@ struct NavMenuOverlay: View {
                             menuLabel("CREATE")
                         }
 
-                        if session.isSignedIn {
-                            NavigationLink {
-                                TestHooksPageView()
-                            } label: {
-                                menuLabel("SWIPE OR STAY")
-                            }
+                        NavigationLink {
+                            TestHooksPageView()
+                        } label: {
+                            menuLabel("STAY OR SWIPE")
                         }
 
                         NavigationLink {

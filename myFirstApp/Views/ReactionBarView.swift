@@ -112,6 +112,7 @@ struct ReactionBarView: View {
                             Text(entry.feedback ?? "")
                                 .font(HPFont.body)
                                 .foregroundColor(HPColor.textDark)
+                                .multilineTextAlignment(.leading)
                         }
                         Spacer()
                     }
@@ -176,7 +177,7 @@ struct ReplyButton: View {
             Button {
                 showReply = true
             } label: {
-                Text("reply")
+                Text("Reply")
                     .font(HPFont.caption)
                     .foregroundColor(HPColor.backgroundDark.opacity(0.5))
             }

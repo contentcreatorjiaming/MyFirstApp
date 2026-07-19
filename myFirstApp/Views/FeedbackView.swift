@@ -7,8 +7,7 @@ import SwiftUI
 
 struct FeedbackView: View {
     @EnvironmentObject private var session: UserSession
-    @AppStorage("totalHeartTaps") private var totalTaps: Int = 0
-    @AppStorage("userHasTappedV2") private var userHasTapped: Bool = false
+    @State private var totalTaps: Int = 0
     @State private var heartScale: CGFloat = 1.0
     @State private var heartOpacity: Double = 0.0
     @State private var showBigHeart = false
@@ -22,7 +21,7 @@ struct FeedbackView: View {
 
                 HookPlaygroundTitle(size: 32, twoLines: true)
 
-                Text("created by jiaming")
+                Text("Created by jiaming")
                     .font(HPFont.heading)
                     .foregroundColor(.white)
                 Divider().background(.white.opacity(0.3)).padding(.horizontal, 60)
@@ -32,7 +31,7 @@ struct FeedbackView: View {
                         UIApplication.shared.open(url)
                     }
                 } label: {
-                    Text("instagram @rhymingjiaming")
+                    Text("Instagram @rhymingjiaming")
                         .font(HPFont.body)
                         .foregroundColor(HPColor.backgroundDark)
                         .underline()
@@ -44,7 +43,7 @@ struct FeedbackView: View {
 
                 Spacer().frame(height: 20)
 
-                Text("tap the green heart if you enjoyed this app")
+                Text("Tap the green heart if you enjoyed this app")
                     .font(HPFont.caption)
                     .foregroundColor(.white.opacity(0.7))
 
@@ -55,7 +54,7 @@ struct FeedbackView: View {
                 }
                 .buttonStyle(.plain)
 
-                Text("users tapped: \(totalTaps)")
+                Text("times tapped: \(totalTaps)")
                     .font(HPFont.subheading)
                     .foregroundColor(.white)
 
@@ -77,15 +76,23 @@ struct FeedbackView: View {
             }
         }
         .navigationTitle("")
+        .onAppear { totalTaps = UserDefaults.standard.integer(forKey: tapsKey) }
+        .onChange(of: session.displayName) { _, _ in
+            totalTaps = UserDefaults.standard.integer(forKey: tapsKey)
+        }
+    }
+
+    /// Signed-in users get a per-account key so the count survives
+    /// sign-out and is restored on their next sign-in.
+    private var tapsKey: String {
+        session.isSignedIn ? "heartTaps_\(session.displayName)" : "totalHeartTaps"
     }
 
     private func tapHeart() {
-        if !session.isSignedIn && !userHasTapped {
-            userHasTapped = true
-            totalTaps += 1
-        }
+        totalTaps += 1
+        UserDefaults.standard.set(totalTaps, forKey: tapsKey)
 
-        // Animate regardless (visual feedback even if count doesn't change)
+        // Animate every tap
         showBigHeart = true
         heartScale = 0.5
         heartOpacity = 0.8

@@ -9,7 +9,7 @@
 import Foundation
 
 enum SeedData {
-    static let seededKey = "hasSeededHooks_v6"
+    static let seededKey = "hasSeededHooks_v7"
 
     static func seedIfNeeded(store: HookStore) {
         guard !UserDefaults.standard.bool(forKey: seededKey) else { return }
@@ -27,6 +27,7 @@ enum SeedData {
             testHook("I tested 50 hooks and only 3 worked. Here's why.", by: "hookmaster"),
             testHook("The hook isn't the first line. It's the first feeling.", by: "contentjay"),
             testHook("Nobody talks about what happens after the hook lands.", by: "viral.vee"),
+            testHook("can the speed of sound ever be faster than light", by: "curious.carl"),
         ]
         for hook in testHooks {
             store.add(hook)
@@ -38,7 +39,7 @@ enum SeedData {
         let testHooks = store.hooks.filter { $0.source == .testNew }
         guard !testHooks.isEmpty else { return }
         // Only seed once
-        let feedbackKey = "hasSeededTestFeedback_v2"
+        let feedbackKey = "hasSeededTestFeedback_v3"
         guard !UserDefaults.standard.bool(forKey: feedbackKey) else { return }
 
         let names = ["alex_creates", "maya.hooks", "contentjay", "reelqueen", "viral.vee", "hookmaster"]
@@ -55,17 +56,37 @@ enum SeedData {
             (.swipe, "Try leading with a number or a bold claim"),
         ]
 
-        for hook in testHooks {
+        let replies = [
+            "Totally agree with this",
+            "Hmm, I see it differently — the hook did its job for me",
+            "Yes!! Was thinking the same thing",
+            "Fair point, hadn't considered that",
+        ]
+
+        for (hookIndex, hook) in testHooks.enumerated() {
             let count = Int.random(in: 2...4)
             for i in 0..<count {
                 let fb = feedbacks[Int.random(in: 0..<feedbacks.count)]
+                let author = names[i % names.count]
                 let reaction = Reaction(
                     id: UUID(), hookID: hook.id, type: fb.0,
                     feedback: fb.1,
-                    authorDisplayName: names[i % names.count],
+                    authorDisplayName: author,
                     createdAt: Date().addingTimeInterval(-Double.random(in: 3600...86400 * 3))
                 )
                 reactionStore.add(reaction)
+
+                // Thread a reply under the first comment of every other hook
+                if i == 0 && hookIndex % 2 == 0 {
+                    let replier = names[(i + 3) % names.count]
+                    let reply = Reaction(
+                        id: UUID(), hookID: hook.id, type: fb.0,
+                        feedback: "↳ @\(author): \(replies[hookIndex % replies.count])",
+                        authorDisplayName: replier,
+                        createdAt: Date().addingTimeInterval(-Double.random(in: 600...3600))
+                    )
+                    reactionStore.add(reply)
+                }
             }
         }
         UserDefaults.standard.set(true, forKey: feedbackKey)

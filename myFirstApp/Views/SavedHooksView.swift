@@ -83,7 +83,7 @@ struct SavedHooksView: View {
     // MARK: - Saved from explore
 
     private var savedList: some View {
-        let saved = store.hooks.filter { bookmarks.isSaved($0.id) }
+        let saved = store.hooks.filter { bookmarks.isSaved($0.id) && $0.source == .existing }
         return Group {
             if saved.isEmpty {
                 emptyState("No saved hooks yet", sub: "Bookmark hooks from Explore to see them here.")
@@ -91,7 +91,7 @@ struct SavedHooksView: View {
                 LazyVStack(spacing: 12) {
                     ForEach(saved) { hook in
                         NavigationLink { HookDetailView(hook: hook) } label: {
-                            hookCard(hook, subtitle: hook.source == .existing ? "from explore" : "your test hook")
+                            hookCard(hook, subtitle: hook.source == .existing ? "From explore" : "Your test hook")
                         }.buttonStyle(.plain)
                     }
                 }.padding(.horizontal, 16).padding(.top, 8)
@@ -121,16 +121,7 @@ struct SavedHooksView: View {
                     ForEach(Array(matching), id: \.id) { reaction in
                         if let hook = store.hooks.first(where: { $0.id == reaction.hookID }) {
                             NavigationLink { HookDetailView(hook: hook) } label: {
-                                VStack(alignment: .leading, spacing: 8) {
-                                    hookCard(hook, subtitle: "you \(label) this")
-                                    if let fb = reaction.feedback, !fb.isEmpty {
-                                        Text("Your note: \(fb)")
-                                            .font(HPFont.caption)
-                                            .foregroundColor(HPColor.backgroundDark.opacity(0.6))
-                                            .padding(.horizontal, 14)
-                                            .padding(.bottom, 8)
-                                    }
-                                }
+                                hookCard(hook, subtitle: "You \(label) this")
                             }.buttonStyle(.plain)
                         }
                     }
@@ -165,10 +156,11 @@ struct SavedHooksView: View {
                     }
                 )
             VStack(alignment: .leading, spacing: 4) {
-                Text(hook.textContent ?? "added by \(hook.authorDisplayName)")
+                Text(hook.textContent ?? "Added by \(hook.authorDisplayName)")
                     .font(HPFont.body)
                     .foregroundColor(HPColor.backgroundDark)
                     .lineLimit(2)
+                    .multilineTextAlignment(.leading)
                 Text(subtitle)
                     .font(HPFont.caption)
                     .foregroundColor(HPColor.backgroundDark.opacity(0.5))

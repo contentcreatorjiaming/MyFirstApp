@@ -19,9 +19,23 @@ struct HookDetailView: View {
     @State private var skipRateInput: String = ""
     @State private var showSignInForClaim = false
     @State private var showMenu = false
+    @State private var isEditingSummary = false
+    @State private var summaryEditText: String = ""
+    @State private var showSignInForSummary = false
 
     private var isOwnHook: Bool {
         session.isSignedIn && hook.authorDisplayName == session.displayName
+    }
+
+    /// Live copy from the store so in-place edits (text, AI summary) refresh.
+    private var liveHook: Hook {
+        store.hooks.first(where: { $0.id == hook.id }) ?? hook
+    }
+
+    private var displayedSummary: String? {
+        if let s = liveHook.aiSummary { return s }
+        if liveHook.metrics != nil { return AIInsightEngine.generateInsight(for: liveHook) }
+        return nil
     }
 
     var body: some View {
@@ -47,7 +61,7 @@ struct HookDetailView: View {
                         }
                     } else {
                         Button {
-                            editText = hook.textContent ?? ""
+                            editText = liveHook.textContent ?? ""
                             isEditing = true
                         } label: {
                             Label("Edit", systemImage: "pencil")
@@ -69,28 +83,9 @@ struct HookDetailView: View {
                     metricsSection(metrics)
                 }
 
-                // AI Summary
-                if let summary = hook.aiSummary {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("AI Summary")
-                            .font(HPFont.heading)
-                            .foregroundColor(.white)
-                        Text(summary)
-                            .font(HPFont.body)
-                            .foregroundColor(.white.opacity(0.9))
-                            .padding(14)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color.white.opacity(0.15))
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                    }
-                } else if hook.metrics != nil {
-                    Text(AIInsightEngine.generateInsight(for: hook))
-                        .font(HPFont.body)
-                        .foregroundColor(.white.opacity(0.9))
-                        .padding(14)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.white.opacity(0.15))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                // AI Summary — editable by signed-in users
+                if let summary = displayedSummary {
+                    aiSummarySection(summary)
                 }
 
                 // Static reaction counts for test hooks (not interactive)
@@ -127,20 +122,22 @@ struct HookDetailView: View {
     private var headerSection: some View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 4) {
-                Text("added by \(hook.authorDisplayName)")
+                Text("Added by \(hook.authorDisplayName)")
                     .font(HPFont.subheading)
                     .foregroundColor(.white)
-                Text("added on \(hook.createdAt, style: .date)")
+                Text("Added on \(hook.createdAt, style: .date)")
                     .font(HPFont.caption)
                     .foregroundColor(HPColor.textSecondary)
                 if let posted = hook.datePosted {
-                    Text("originally posted \(posted, style: .date)")
+                    Text("Originally posted \(posted, style: .date)")
                         .font(HPFont.caption)
                         .foregroundColor(HPColor.textSecondary)
                 }
             }
             Spacer()
-            BookmarkButton(hookID: hook.id)
+            if hook.source == .existing {
+                BookmarkButton(hookID: hook.id)
+            }
         }
     }
 
@@ -150,9 +147,10 @@ struct HookDetailView: View {
     private var contentSection: some View {
         switch hook.kind {
         case .text:
-            Text(hook.textContent ?? "")
+            Text(liveHook.textContent ?? "")
                 .font(HPFont.body)
                 .foregroundColor(HPColor.backgroundDark)
+                .multilineTextAlignment(.leading)
                 .padding(16)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(Color.white)
@@ -179,6 +177,7 @@ struct HookDetailView: View {
                         .foregroundColor(HPColor.backgroundDark)
                         .lineLimit(2)
                         .underline()
+                        .multilineTextAlignment(.leading)
                 }
                 .padding(16)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -201,7 +200,7 @@ struct HookDetailView: View {
             Text("Performance")
                 .font(HPFont.heading)
                 .foregroundColor(.white)
-            Text("ordered by what impacts your views the most, per instagram's own ranking")
+            Text("Ordered by what impacts your views the most, per instagram's own ranking")
                 .font(HPFont.caption)
                 .foregroundColor(.white.opacity(0.7))
 
@@ -247,7 +246,70 @@ struct HookDetailView: View {
         return "\(n)"
     }
 
-    // MARK: - AI Insight (removed label, kept in body)
+    // MARK: - AI Summary
+
+    private func aiSummarySection(_ summary: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("AI Summary")
+                        .font(HPFont.heading)
+                        .foregroundColor(.white)
+                    Text("Read this with a grain of salt; AI summary of what reel is about might not be 100% accurate. But that's where you can help!")
+                        .font(HPFont.caption)
+                        .foregroundColor(.white.opacity(0.75))
+                }
+                Spacer()
+                if !isEditingSummary {
+                    Button {
+                        if session.isSignedIn {
+                            summaryEditText = summary
+                            isEditingSummary = true
+                        } else {
+                            showSignInForSummary = true
+                        }
+                    } label: {
+                        Label("Edit", systemImage: "pencil")
+                            .font(HPFont.caption)
+                            .foregroundColor(.white)
+                    }
+                }
+            }
+
+            if isEditingSummary {
+                TextEditor(text: $summaryEditText)
+                    .font(HPFont.body)
+                    .frame(height: 120)
+                    .padding(4)
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                Button("Save Edit") {
+                    store.updateAISummary(hookID: hook.id, newSummary: summaryEditText)
+                    isEditingSummary = false
+                }
+                .buttonStyle(HPSecondaryButtonStyle())
+            } else {
+                Text(summary)
+                    .font(HPFont.body)
+                    .foregroundColor(.white.opacity(0.9))
+                    .padding(14)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.white.opacity(0.15))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+        }
+        .fullScreenCover(isPresented: $showSignInForSummary) {
+            NavigationStack {
+                SignInGateView()
+                    .toolbar {
+                        ToolbarItem(placement: .topBarLeading) {
+                            Button("Cancel") { showSignInForSummary = false }
+                                .foregroundColor(.white)
+                        }
+                    }
+            }
+        }
+    }
 
     // MARK: - Static reaction counts (non-interactive)
 
@@ -300,6 +362,7 @@ struct HookDetailView: View {
                                     Text(entry.feedback ?? "")
                                         .font(HPFont.body)
                                         .foregroundColor(HPColor.textDark)
+                                        .multilineTextAlignment(.leading)
                                 }
                                 Spacer()
                             }
@@ -321,6 +384,7 @@ struct HookDetailView: View {
                                         Text(reply.feedback?.replacingOccurrences(of: "↳ @\(entry.authorDisplayName): ", with: "") ?? "")
                                             .font(HPFont.caption)
                                             .foregroundColor(HPColor.textDark)
+                                            .multilineTextAlignment(.leading)
                                     }
                                 }
                                 .padding(.leading, 30)
@@ -344,6 +408,13 @@ struct HookDetailView: View {
         }
     }
 
+    /// "26.5" stays 26.5, "42" stays 42 — no rounding to whole numbers.
+    private func formatRate(_ rate: Double) -> String {
+        rate.truncatingRemainder(dividingBy: 1) == 0
+            ? String(format: "%.0f", rate)
+            : String(format: "%.1f", rate)
+    }
+
     private var claimSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             if let claimed = hook.claimedBy {
@@ -352,19 +423,25 @@ struct HookDetailView: View {
                     .foregroundColor(.white.opacity(0.7))
 
                 if let rate = hook.skipRate {
-                    HStack(spacing: 6) {
-                        Image(systemName: "chart.line.downtrend.xyaxis")
-                            .foregroundColor(HPColor.backgroundDark)
-                        Text("\(String(format: "%.0f", rate))%")
-                            .font(HPFont.metric)
-                            .foregroundColor(HPColor.backgroundDark)
-                        Text("Skip Rate")
-                            .font(HPFont.metricLabel)
-                            .foregroundColor(HPColor.backgroundDark.opacity(0.7))
+                    HStack(spacing: 10) {
+                        VStack(spacing: 6) {
+                            Image(systemName: "chart.line.downtrend.xyaxis")
+                                .font(.body)
+                                .foregroundColor(HPColor.backgroundDark)
+                            Text("\(formatRate(rate))%")
+                                .font(HPFont.metric)
+                                .foregroundColor(HPColor.backgroundDark)
+                            Text("Skip Rate")
+                                .font(HPFont.metricLabel)
+                                .foregroundColor(HPColor.backgroundDark.opacity(0.7))
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 18)
+                        .background(Color.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        Spacer().frame(maxWidth: .infinity)
+                        Spacer().frame(maxWidth: .infinity)
                     }
-                    .padding(14)
-                    .background(Color.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
             } else {
                 if showClaimInput {
@@ -385,6 +462,9 @@ struct HookDetailView: View {
                             }
                             .buttonStyle(HPButtonStyle(color: HPColor.backgroundDark))
                         }
+                        Text("Currently, Instagram considers skip rate the most important metric to retention")
+                            .font(HPFont.caption)
+                            .foregroundColor(.white)
                     }
                 } else {
                     Button {
@@ -401,7 +481,7 @@ struct HookDetailView: View {
                         }
                         .foregroundColor(HPColor.backgroundDark)
                         .padding(14)
-                        .frame(maxWidth: .infinity)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Color.white)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                     }

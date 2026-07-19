@@ -24,6 +24,14 @@ final class BookmarkStore: ObservableObject {
         savedIDs.contains(hookID)
     }
 
+    /// Saves a hook without toggling — used when a hook should be
+    /// auto-added to the saved list (e.g. sent to Test).
+    func add(_ hookID: UUID) {
+        guard !savedIDs.contains(hookID) else { return }
+        savedIDs.insert(hookID)
+        save()
+    }
+
     func toggle(_ hookID: UUID) {
         if savedIDs.contains(hookID) {
             savedIDs.remove(hookID)
