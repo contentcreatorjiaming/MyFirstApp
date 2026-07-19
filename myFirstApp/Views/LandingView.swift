@@ -23,8 +23,8 @@ struct LandingView: View {
                     BallpitBackground()
                 } else {
                     PlaygroundAnimation(
-                        showSeesaw: !(menuOpen && session.isSignedIn),
-                        seesawY: menuOpen ? 0.72 : 0.57
+                        showSeesaw: !menuOpen,
+                        seesawY: 0.64
                     )
                 }
 
