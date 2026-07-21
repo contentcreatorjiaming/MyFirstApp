@@ -24,36 +24,33 @@ struct SavedHooksView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            if !session.isSignedIn {
-                ZStack {
-                    HPGradientBackground()
-                    VStack {
+        if !session.isSignedIn {
+            // Standard sign in/up screen; authenticating swaps to the tabs
+            // in place so the user lands on Saved Hooks.
+            AuthGateScreen()
+        } else {
+            VStack(spacing: 0) {
+                NavigationLink {
+                    EditInterestsView()
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "slider.horizontal.3")
+                        Text("My Interests")
+                            .font(HPFont.subheading)
                         Spacer()
-                        VStack(spacing: 0) {
-                            Text("hook").font(HPFont.screenTitle)
-                            Text("playground").font(HPFont.screenTitle)
-                        }.foregroundColor(.white)
-                        Spacer().frame(height: 36)
-                        HStack(spacing: 14) {
-                            NavigationLink {
-                                SignInGateView()
-                            } label: {
-                                Text("SIGN IN")
-                            }
-                            .buttonStyle(HPButtonStyle(color: HPColor.pastelBlue))
-
-                            NavigationLink {
-                                SignInGateView()
-                            } label: {
-                                Text("SIGN UP")
-                            }
-                            .buttonStyle(HPButtonStyle(color: HPColor.pastelPink))
-                        }
-                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
                     }
+                    .foregroundColor(HPColor.backgroundDark)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 12)
+                    .background(Color.white.opacity(0.92))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
-            } else {
+                .buttonStyle(.plain)
+                .padding(.horizontal)
+                .padding(.top, 10)
+
                 Picker("", selection: $selectedTab) {
                     Text("Saved").tag(0)
                     Text("Stayed").tag(1)
@@ -61,7 +58,7 @@ struct SavedHooksView: View {
                 }
                 .pickerStyle(.segmented)
                 .padding(.horizontal)
-                .padding(.top, 8)
+                .padding(.top, 12)
 
                 ScrollView {
                     switch selectedTab {
@@ -72,12 +69,12 @@ struct SavedHooksView: View {
                     }
                 }
             }
+            .navigationTitle("")
+            .toolbar { ToolbarItem(placement: .principal) { HookPlaygroundTitle(size: 18, twoLines: true) } }
+            .navigationBarTitleDisplayMode(.inline)
+            .background(HPColor.background)
+            .toolbarBackground(HPColor.background, for: .navigationBar)
         }
-        .navigationTitle("")
-        .toolbar { ToolbarItem(placement: .principal) { HookPlaygroundTitle(size: 18, twoLines: true) } }
-        .navigationBarTitleDisplayMode(.inline)
-        .background(HPColor.background)
-        .toolbarBackground(HPColor.background, for: .navigationBar)
     }
 
     // MARK: - Saved from explore
@@ -85,7 +82,15 @@ struct SavedHooksView: View {
     private var savedList: some View {
         // Includes both bookmarked explore hooks AND the user's own
         // tested hooks (auto-bookmarked on submit in TestNewHookView).
-        let saved = store.hooks.filter { bookmarks.isSaved($0.id) }
+        // Dedupe identical entries (same text/video) so a hook that was
+        // submitted more than once only appears a single time.
+        var seenKeys = Set<String>()
+        let saved = store.hooks
+            .filter { bookmarks.isSaved($0.id) }
+            .filter { hook in
+                let key = hook.textContent ?? hook.videoFileName ?? hook.linkURL ?? hook.id.uuidString
+                return seenKeys.insert(key).inserted
+            }
         return Group {
             if saved.isEmpty {
                 emptyState("No saved hooks yet", sub: "Bookmark the hooks that grab you — from creators across the playground.")
@@ -153,7 +158,7 @@ struct SavedHooksView: View {
                     }
                 )
             VStack(alignment: .leading, spacing: 4) {
-                Text(hook.textContent ?? "Added by \(hook.authorDisplayName)")
+                Text(hook.textContent ?? "Added by @\(hook.authorDisplayName)")
                     .font(HPFont.body)
                     .foregroundColor(HPColor.backgroundDark)
                     .lineLimit(2)

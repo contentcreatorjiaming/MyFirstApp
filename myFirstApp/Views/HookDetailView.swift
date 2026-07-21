@@ -13,8 +13,6 @@ struct HookDetailView: View {
     @EnvironmentObject private var store: HookStore
     @EnvironmentObject private var session: UserSession
     @EnvironmentObject private var reactionStore: ReactionStore
-    @State private var isEditing = false
-    @State private var editText: String = ""
     @State private var showClaimInput = false
     @State private var skipRateInput: String = ""
     @State private var showSignInForClaim = false
@@ -22,10 +20,6 @@ struct HookDetailView: View {
     @State private var isEditingSummary = false
     @State private var summaryEditText: String = ""
     @State private var showSignInForSummary = false
-
-    private var isOwnHook: Bool {
-        session.isSignedIn && hook.authorDisplayName == session.displayName
-    }
 
     /// Live copy from the store so in-place edits (text, AI summary) refresh.
     private var liveHook: Hook {
@@ -43,40 +37,16 @@ struct HookDetailView: View {
             VStack(alignment: .leading, spacing: 20) {
                 headerSection
 
-                // Edit option for own hooks
-                if isOwnHook && hook.kind == .text {
-                    if isEditing {
-                        VStack(spacing: 10) {
-                            TextEditor(text: $editText)
-                                .font(HPFont.body)
-                                .frame(height: 80)
-                                .padding(4)
-                                .background(Color.white)
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
-                            Button("Save Edit") {
-                                store.updateText(hookID: hook.id, newText: editText)
-                                isEditing = false
-                            }
-                            .buttonStyle(HPSecondaryButtonStyle())
-                        }
-                    } else {
-                        Button {
-                            editText = liveHook.textContent ?? ""
-                            isEditing = true
-                        } label: {
-                            Label("Edit", systemImage: "pencil")
-                                .font(HPFont.caption)
-                                .foregroundColor(HPColor.backgroundDark)
-                        }
-                    }
-                }
-
                 // Link + Claim for existing hooks
                 if hook.source == .existing {
                     contentSection
                     claimSection
                 } else {
                     contentSection
+                }
+
+                if let topics = hook.topics, !topics.isEmpty {
+                    topicsSection(topics)
                 }
 
                 if let metrics = hook.metrics {
@@ -122,15 +92,15 @@ struct HookDetailView: View {
     private var headerSection: some View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Added by \(hook.authorDisplayName)")
+                Text("Added by @\(hook.authorDisplayName)")
                     .font(HPFont.subheading)
                     .foregroundColor(.white)
                 Text("Added on \(hook.createdAt, style: .date)")
-                    .font(HPFont.caption)
+                    .font(HPFont.subheading)
                     .foregroundColor(HPColor.textSecondary)
                 if let posted = hook.datePosted {
                     Text("Originally posted \(posted, style: .date)")
-                        .font(HPFont.caption)
+                        .font(HPFont.subheading)
                         .foregroundColor(HPColor.textSecondary)
                 }
             }
@@ -189,6 +159,30 @@ struct HookDetailView: View {
                 VideoPreviewView(url: store.videoURL(for: filename))
                     .frame(height: 250)
                     .clipShape(RoundedRectangle(cornerRadius: 14))
+            }
+        }
+    }
+
+    // MARK: - Topics
+
+    // Mirrors the Add form's chip grid: this reel's topics are "colored in"
+    // (white fill, green text); the rest sit in the translucent unselected style.
+    private func topicsSection(_ topics: [String]) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Topics")
+                .font(HPFont.heading)
+                .foregroundColor(.white)
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 110), spacing: 8)], spacing: 8) {
+                ForEach(HookTopics.all, id: \.self) { topic in
+                    let isOn = topics.contains(topic)
+                    Text(topic)
+                        .font(HPFont.caption)
+                        .foregroundColor(isOn ? HPColor.backgroundDark : .white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                        .background(isOn ? Color.white : Color.white.opacity(0.2))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
             }
         }
     }

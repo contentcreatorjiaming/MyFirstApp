@@ -47,6 +47,12 @@ final class BookmarkStore: ObservableObject {
         save()
     }
 
+    /// Removes every saved hook. Used by the one-time fresh-start reset.
+    func clearAll() {
+        savedIDs.removeAll()
+        save()
+    }
+
     private func save() {
         let strings = savedIDs.map { $0.uuidString }
         UserDefaults.standard.set(strings, forKey: key)

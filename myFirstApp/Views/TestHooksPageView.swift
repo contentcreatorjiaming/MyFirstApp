@@ -21,8 +21,26 @@ struct TestHooksPageView: View {
     @State private var showSentMessage = false
     @State private var feedbackDragOffset: CGFloat = 0
 
+    /// Snapshot of the hooks the user can rate, taken on appear so the deck
+    /// doesn't shift under the user mid-session as reactions are recorded.
+    @State private var queue: [Hook] = []
+    @State private var queueReady = false
+
     private var testHooks: [Hook] {
         store.hooks.filter { $0.source == .testNew }
+    }
+
+    /// Hooks the signed-in user is allowed to rate — never their own, and
+    /// only those matching a topic they said they're interested in. Filtering
+    /// the hook list (rather than iterating per topic) means a hook tagged with
+    /// several matching topics still surfaces exactly once.
+    private var ratableHooks: [Hook] {
+        let interests = Set(session.interestedTopics)
+        return testHooks.filter { hook in
+            guard hook.authorDisplayName != session.displayName else { return false }
+            guard !interests.isEmpty else { return true }   // no preference → show all
+            return !Set(hook.topics ?? []).isDisjoint(with: interests)
+        }
     }
 
     var body: some View {
@@ -30,16 +48,18 @@ struct TestHooksPageView: View {
             AuroraBackground()
 
             if !session.isSignedIn {
-                signInPrompt
-            } else if testHooks.isEmpty {
+                AuthGateScreen()
+            } else if ratableHooks.isEmpty {
                 emptyState
-            } else if currentIndex >= testHooks.count {
+            } else if !queueReady {
+                Color.clear
+            } else if queue.isEmpty || currentIndex >= queue.count {
                 completionState
             } else if showFeedback {
                 feedbackPrompt
             } else {
                 SwipeCardView(
-                    hook: testHooks[currentIndex],
+                    hook: queue[currentIndex],
                     onStay: { react(.stay) },
                     onSwipe: { react(.swipe) }
                 )
@@ -58,16 +78,28 @@ struct TestHooksPageView: View {
             }
         }
         .navigationTitle("")
-        
+
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.clear, for: .navigationBar)
+        .onAppear { rebuildQueue() }
+        .onChange(of: session.displayName) { _, _ in rebuildQueue() }
+    }
+
+    /// Deal only cards the user hasn't rated yet and that aren't their own.
+    private func rebuildQueue() {
+        queue = ratableHooks.filter {
+            !reactionStore.hasReacted(hookID: $0.id, author: session.displayName)
+        }
+        currentIndex = 0
+        showFeedback = false
+        queueReady = true
     }
 
     // MARK: - React
 
     private func react(_ type: ReactionType) {
         guard session.isSignedIn else { return }
-        let hook = testHooks[currentIndex]
+        let hook = queue[currentIndex]
 
         if reactionStore.hasReacted(hookID: hook.id, author: session.displayName) {
             reactionStore.switchReaction(hookID: hook.id, author: session.displayName, to: type)
@@ -107,34 +139,13 @@ struct TestHooksPageView: View {
             Image(systemName: "flask")
                 .font(.system(size: 40))
                 .foregroundColor(.white.opacity(0.6))
-            Text("No test hooks yet")
+            Text("No hooks to rate yet")
                 .font(HPFont.heading)
                 .foregroundColor(.white)
-            Text("Submit a hook via Create → Test\nand let other creators react.")
+            Text("Check back when other creators\nsubmit new hooks to test.")
                 .font(HPFont.body)
                 .foregroundColor(.white.opacity(0.7))
                 .multilineTextAlignment(.center)
-        }
-    }
-
-    private var signInPrompt: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "person.crop.circle")
-                .font(.system(size: 50))
-                .foregroundColor(.white.opacity(0.6))
-            Text("Sign in to play")
-                .font(HPFont.heading)
-                .foregroundColor(.white)
-            Text("Join the playground — swipe on hooks\nand help creators find what works.")
-                .font(HPFont.body)
-                .foregroundColor(.white.opacity(0.7))
-                .multilineTextAlignment(.center)
-            NavigationLink {
-                SignInGateView()
-            } label: {
-                Text("SIGN IN")
-            }
-            .buttonStyle(HPSecondaryButtonStyle())
         }
     }
 
@@ -145,7 +156,7 @@ struct TestHooksPageView: View {
             Text("You've reviewed all hooks!")
                 .font(HPFont.heading)
                 .foregroundColor(.white)
-            Text("\(testHooks.count) hooks rated")
+            Text("\(queue.count) hooks rated")
                 .font(HPFont.body)
                 .foregroundColor(.white.opacity(0.7))
             Text("Your reactions just helped real creators sharpen their hooks.")
@@ -156,7 +167,7 @@ struct TestHooksPageView: View {
             HStack(spacing: 14) {
                 NavigationLink { SavedHooksView() } label: { Text("SEE MY RATINGS") }
                     .buttonStyle(HPButtonStyle(color: HPColor.pastelBlue, fullWidth: true))
-                NavigationLink { CreateHubView() } label: { Text("ADD MY OWN") }
+                NavigationLink { TestNewHookView() } label: { Text("ADD MY OWN") }
                     .buttonStyle(HPButtonStyle(color: HPColor.pastelPink, fullWidth: true))
             }.padding(.horizontal, 20)
         }

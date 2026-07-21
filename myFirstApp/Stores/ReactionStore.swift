@@ -28,6 +28,12 @@ final class ReactionStore: ObservableObject {
         save()
     }
 
+    /// Removes every reaction. Used by the one-time fresh-start reset.
+    func clearAll() {
+        reactions.removeAll()
+        save()
+    }
+
     /// Updates the feedback text on an existing reaction.
     func updateFeedback(for hookID: UUID, author: String, feedback: String) {
         if let index = reactions.lastIndex(where: {
@@ -105,18 +111,9 @@ final class ReactionStore: ObservableObject {
             "reelqueen", "hookmaster99", "viralvee",
             "creator.sam", "scrollstopper"
         ]
-        let mockFeedback = [
-            "Strong opening — I'd definitely keep watching",
-            "Too generic, needs a more specific angle",
-            "The visual grabs attention immediately",
-            "Good curiosity gap but the payoff better deliver",
-            "Would work better as a question",
-            "This is the kind of hook that stops the scroll",
-            "Feels clickbaity — might hurt trust",
-            "Love the contrast, makes me want to see the result",
-            nil, nil, nil, nil  // not everyone leaves feedback
-        ]
 
+        // Only seeds Stay/Swipe *counts* — the written community comments come
+        // from SeedData.seedTestFeedback, which keeps every comment unique.
         for hookID in newIDs {
             let count = Int.random(in: 4...8)
             for i in 0..<count {
@@ -125,7 +122,7 @@ final class ReactionStore: ObservableObject {
                     id: UUID(),
                     hookID: hookID,
                     type: type,
-                    feedback: mockFeedback.randomElement() ?? nil,
+                    feedback: nil,
                     authorDisplayName: mockNames[i % mockNames.count],
                     createdAt: Date().addingTimeInterval(-Double.random(in: 3600...86400 * 7))
                 )

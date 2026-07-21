@@ -48,4 +48,10 @@ struct Hook: Identifiable, Codable, Equatable {
     var aiSummary: String?
     var skipRate: Double?
     var claimedBy: String?
+    var topics: [String]? = nil
+}
+
+/// Canonical topic list used for tagging and filtering reels on Explore.
+enum HookTopics {
+    static let all = ["Motivation", "Humor", "Career", "Tech", "Relationships", "Lifestyle"]
 }

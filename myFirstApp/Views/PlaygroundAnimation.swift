@@ -18,6 +18,9 @@ struct PlaygroundAnimation: View {
     /// and the next icons (the slide, at 0.70) by default; menu screens
     /// pass the SIGN OUT spot instead.
     var seesawY: CGFloat = 0.64
+    /// Homepage bottom-row rearrangement: drops the merry-go-round, moves the
+    /// climbing dome to the bottom-left, and moves the slide to the bottom-right.
+    var homeVariant: Bool = false
 
     @State private var drawProgress: CGFloat = 0
     @State private var swingPhase: Double = -1     // -1...1
@@ -108,9 +111,10 @@ struct PlaygroundAnimation: View {
                 .trim(from: 0, to: drawProgress)
                 .stroke(stroke, style: style)
 
-                // Slide (right edge, below the buttons)
+                // Slide (right edge by default; bottom-right on the homepage)
                 Path { p in
-                    let lx = w * 0.94, sy = h * 0.70
+                    let lx = homeVariant ? w * 0.81 : w * 0.94
+                    let sy = homeVariant ? h * 0.81 : h * 0.70
                     p.move(to: CGPoint(x: lx, y: sy))
                     p.addLine(to: CGPoint(x: lx, y: sy + 70))
                     p.move(to: CGPoint(x: lx - 20, y: sy))
@@ -132,18 +136,21 @@ struct PlaygroundAnimation: View {
 
                 // ----- Bottom band -----
 
-                // Merry-go-round (bottom-left)
-                Path { p in
-                    let cx = w * 0.13, cy = h * 0.88
-                    let r: CGFloat = 28
-                    p.addEllipse(in: CGRect(x: cx - r, y: cy - r * 0.4, width: r * 2, height: r * 0.8))
-                    p.move(to: CGPoint(x: cx, y: cy))
-                    p.addLine(to: CGPoint(x: cx, y: cy - 20))
-                    p.move(to: CGPoint(x: cx - 13, y: cy - 15))
-                    p.addLine(to: CGPoint(x: cx + 13, y: cy - 15))
+                // Merry-go-round (bottom-left) — dropped on the homepage, where
+                // the climbing dome takes this spot instead.
+                if !homeVariant {
+                    Path { p in
+                        let cx = w * 0.13, cy = h * 0.88
+                        let r: CGFloat = 28
+                        p.addEllipse(in: CGRect(x: cx - r, y: cy - r * 0.4, width: r * 2, height: r * 0.8))
+                        p.move(to: CGPoint(x: cx, y: cy))
+                        p.addLine(to: CGPoint(x: cx, y: cy - 20))
+                        p.move(to: CGPoint(x: cx - 13, y: cy - 15))
+                        p.addLine(to: CGPoint(x: cx + 13, y: cy - 15))
+                    }
+                    .trim(from: 0, to: drawProgress)
+                    .stroke(stroke, style: style)
                 }
-                .trim(from: 0, to: drawProgress)
-                .stroke(stroke, style: style)
 
                 // Seesaw — bold, solid white, centered
                 if showSeesaw {
@@ -160,9 +167,11 @@ struct PlaygroundAnimation: View {
                     seesawPlank(center: CGPoint(x: w * 0.5, y: h * seesawY), angle: swingPhase * 9)
                 }
 
-                // Climbing dome (bottom-right)
+                // Climbing dome (bottom-right by default; bottom-left on the homepage)
                 Path { p in
-                    let cx = w * 0.72, base = h * 0.89, r: CGFloat = 38
+                    let cx = homeVariant ? w * 0.13 : w * 0.72
+                    let base = homeVariant ? h * 0.88 : h * 0.89
+                    let r: CGFloat = 38
                     p.addArc(center: CGPoint(x: cx, y: base), radius: r,
                              startAngle: .degrees(180), endAngle: .degrees(0), clockwise: false)
                     p.addArc(center: CGPoint(x: cx, y: base), radius: r * 0.62,

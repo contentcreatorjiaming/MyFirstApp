@@ -21,19 +21,30 @@ struct TestNewHookView: View {
     @EnvironmentObject private var bookmarks: BookmarkStore
 
     @State private var kind: HookKind = .text
+    @State private var selectedTopics: Set<String> = []
     @State private var textContent: String = ""
     @State private var videoURL: URL?
     @State private var videoDuration: Double = 0
     @State private var videoItem: PhotosPickerItem?
     @State private var showCamera = false
     @State private var showSavedConfirmation = false
-    @State private var navigateToTestHooks = false
+    @State private var showAddedPopup = false
     @State private var videoError: String?
 
     private let textCharacterLimit = 75
     private let maxVideoDuration: Double = 6.0
 
     var body: some View {
+        if session.isSignedIn {
+            signedInBody
+        } else {
+            // Signing in here swaps this view to the form in place, so the
+            // user lands on Test My Hook rather than bouncing to the menu.
+            AuthGateScreen()
+        }
+    }
+
+    private var signedInBody: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 Picker("Hook type", selection: $kind) {
@@ -52,6 +63,14 @@ struct TestNewHookView: View {
 
                 contentField
 
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("What topic(s) does this fit?")
+                        .font(HPFont.body).foregroundColor(.white)
+                    Text("Pick at least one — it's how the right creators find your hook to rate.")
+                        .font(HPFont.caption).foregroundColor(.white.opacity(0.7))
+                    TopicSelectGrid(selected: $selectedTopics)
+                }
+
                 Button("TEST") { save() }
                     .buttonStyle(HPSecondaryButtonStyle())
                     .disabled(!isValid)
@@ -63,8 +82,41 @@ struct TestNewHookView: View {
         .toolbar { ToolbarItem(placement: .principal) { HookPlaygroundTitle(size: 18, twoLines: true) } }
         .background(HPColor.background)
         .toolbarBackground(HPColor.background, for: .navigationBar)
-        .navigationDestination(isPresented: $navigateToTestHooks) {
-            SavedHooksView()
+        .overlay {
+            if showAddedPopup {
+                ZStack {
+                    Color.black.opacity(0.45).ignoresSafeArea()
+                    VStack(spacing: 18) {
+                        Text("Added to the community!")
+                            .font(HPFont.heading)
+                            .foregroundColor(HPColor.backgroundDark)
+                            .multilineTextAlignment(.center)
+                        Text("While you wait for results...")
+                            .font(HPFont.body)
+                            .foregroundColor(HPColor.backgroundDark.opacity(0.8))
+                            .multilineTextAlignment(.center)
+                        VStack(spacing: 12) {
+                            NavigationLink {
+                                ResearchGridView()
+                            } label: {
+                                Text("EXPLORE MORE HOOKS")
+                            }
+                            .buttonStyle(HPButtonStyle(color: HPColor.pastelPink, fullWidth: true))
+
+                            NavigationLink {
+                                SavedHooksView()
+                            } label: {
+                                Text("SEE SAVED HOOKS")
+                            }
+                            .buttonStyle(HPButtonStyle(color: HPColor.pastelBlue, fullWidth: true))
+                        }
+                    }
+                    .padding(24)
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .padding(32)
+                }
+            }
         }
         .fullScreenCover(isPresented: $showCamera) {
             VideoCaptureView(videoURL: $videoURL, maxDuration: maxVideoDuration)
@@ -144,6 +196,7 @@ struct TestNewHookView: View {
     // MARK: - Validation & Save
 
     private var isValid: Bool {
+        guard !selectedTopics.isEmpty else { return false }
         switch kind {
         case .text:
             let trimmed = textContent.trimmingCharacters(in: .whitespaces)
@@ -188,11 +241,12 @@ struct TestNewHookView: View {
             createdAt: Date(),
             datePosted: nil,
             authorDisplayName: session.displayName,
-            aiSummary: nil, skipRate: nil, claimedBy: nil
+            aiSummary: nil, skipRate: nil, claimedBy: nil,
+            topics: Array(selectedTopics)
         )
         store.add(hook)
         // Hooks sent to Test automatically land in the Saved list.
         bookmarks.add(hook.id)
-        navigateToTestHooks = true
+        showAddedPopup = true
     }
 }

@@ -31,12 +31,17 @@ enum MetricSort: String, CaseIterable, Identifiable {
 
 struct ResearchGridView: View {
     @EnvironmentObject private var store: HookStore
+    @EnvironmentObject private var session: UserSession
     @State private var sortMetric: MetricSort?
+    @State private var topicFilter: String?
+    @State private var showAddSheet = false
+    @State private var showSignInForAdd = false
 
     private var existingHooks: [Hook] {
         // Newest first so freshly added hooks land at the top; seeded
         // hooks share a createdAt so a stable tie-break keeps their order.
         let base = store.hooks.filter { $0.source == .existing }
+            .filter { topicFilter == nil || ($0.topics ?? []).contains(topicFilter!) }
             .enumerated()
             .sorted { a, b in
                 if a.element.createdAt == b.element.createdAt { return a.offset < b.offset }
@@ -67,10 +72,12 @@ struct ResearchGridView: View {
                 LazyVStack(spacing: 14) {
                     ForEach(existingHooks) { hook in
                         ResearchCard(hook: hook)
+                            .transition(.opacity.combined(with: .scale(scale: 0.92)))
                     }
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
+                .animation(.spring(response: 0.4, dampingFraction: 0.85), value: existingHooks.map(\.id))
             }
         }
         .navigationTitle("")
@@ -93,23 +100,72 @@ struct ResearchGridView: View {
                     Button("Clear sort") { sortMetric = nil }
                 }
             } label: {
-                HStack(spacing: 6) {
-                    Image(systemName: "arrow.up.arrow.down")
-                    Text(sortMetric.map { "Sorted by \($0.rawValue)" } ?? "Sort by metric")
-                        .font(HPFont.caption)
-                    Image(systemName: "chevron.down")
-                        .font(.caption2)
-                }
-                .foregroundColor(HPColor.backgroundDark)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .background(Color.white.opacity(0.92))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                filterChip(icon: "arrow.up.arrow.down",
+                           text: sortMetric?.rawValue ?? "Metric")
             }
+
+            Menu {
+                ForEach(HookTopics.all, id: \.self) { topic in
+                    Button(topic) {
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) { topicFilter = topic }
+                    }
+                }
+                if topicFilter != nil {
+                    Divider()
+                    Button("Clear topic") {
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) { topicFilter = nil }
+                    }
+                }
+            } label: {
+                filterChip(icon: "tag", text: topicFilter ?? "Topic")
+            }
+
             Spacer()
+
+            Button {
+                if session.isSignedIn {
+                    showAddSheet = true
+                } else {
+                    showSignInForAdd = true
+                }
+            } label: {
+                filterChip(icon: "plus", text: "Add")
+            }
         }
         .padding(.horizontal, 16)
         .padding(.top, 8)
+        .navigationDestination(isPresented: $showAddSheet) {
+            AddExistingHookView()
+        }
+        .fullScreenCover(isPresented: $showSignInForAdd) {
+            NavigationStack {
+                SignInGateView()
+                    .toolbar {
+                        ToolbarItem(placement: .topBarLeading) {
+                            Button("Cancel") { showSignInForAdd = false }
+                                .foregroundColor(.white)
+                        }
+                    }
+            }
+        }
+    }
+
+    private func filterChip(icon: String, text: String) -> some View {
+        HStack(spacing: 5) {
+            Image(systemName: icon)
+                .font(.subheadline)
+            Text(text)
+                .font(HPFont.subheading)
+                .lineLimit(1)
+            Image(systemName: "chevron.down")
+                .font(.caption2)
+        }
+        .fixedSize(horizontal: true, vertical: false)
+        .foregroundColor(HPColor.backgroundDark)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(Color.white.opacity(0.92))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }
 
@@ -140,13 +196,13 @@ private struct ResearchCard: View {
 
                 ZStack {
                     HStack {
-                        Text("Instagram Reel")
-                            .font(HPFont.caption)
+                        Text("Instagram reel")
+                            .font(HPFont.metricLabel)
                             .foregroundColor(HPColor.backgroundDark.opacity(0.6))
                         Spacer()
                         HStack(spacing: 8) {
                             Text("See more →")
-                                .font(HPFont.caption)
+                                .font(HPFont.metricLabel)
                                 .foregroundColor(HPColor.backgroundDark)
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 6)
@@ -154,8 +210,8 @@ private struct ResearchCard: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
                     }
-                    Text("Added by \(hook.authorDisplayName)")
-                        .font(HPFont.caption)
+                    Text("Added by @\(hook.authorDisplayName)")
+                        .font(HPFont.metricLabel)
                         .foregroundColor(HPColor.backgroundDark.opacity(0.6))
                 }
             }

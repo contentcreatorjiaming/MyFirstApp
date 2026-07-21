@@ -7,26 +7,29 @@ import SwiftUI
 
 struct SignInGateView: View {
     @EnvironmentObject private var session: UserSession
-    @State private var showMainMenu = false
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         Group {
             if session.isSignedIn {
-                CreateHubView()
+                // Neutral backdrop — this cover dismisses the instant auth
+                // succeeds, dropping the user back on the page they gated from.
+                HPGradientBackground()
             } else {
-                AuthChoiceView()
+                AuthGateScreen()
             }
         }
         .onChange(of: session.isSignedIn) { _, signedIn in
-            if signedIn { showMainMenu = true }
-        }
-        .fullScreenCover(isPresented: $showMainMenu) {
-            NavMenuOverlay(isPresented: $showMainMenu)
+            if signedIn { dismiss() }
         }
     }
 }
 
-private struct AuthChoiceView: View {
+/// The sign in / sign up screen (playground background, tappable title,
+/// SIGN IN / SIGN UP chooser → form). Used both standalone (inside a gated
+/// tab, where authenticating swaps the tab content in place) and by
+/// `SignInGateView` (which shows the menu afterward).
+struct AuthGateScreen: View {
     @State private var showForm = false
     @State private var isSignUp = false
 
@@ -42,10 +45,8 @@ private struct AuthChoiceView: View {
                 // Mirrors the homepage layout exactly
                 VStack(spacing: 36) {
                     Spacer()
-                    VStack(spacing: 0) {
-                        Text("hook").font(HPFont.heroTitle)
-                        Text("playground").font(HPFont.heroTitle)
-                    }.foregroundColor(.white)
+                    // Tappable title — opens the nav menu, like every other screen.
+                    HookPlaygroundTitle(size: 52, twoLines: true)
                     Text("test your hooks with creators like you")
                         .font(HPFont.body)
                         .foregroundColor(.white.opacity(0.85))
@@ -71,41 +72,56 @@ private struct AuthFormView: View {
     @EnvironmentObject private var session: UserSession
     @State private var username = ""
     @State private var password = ""
+    @State private var selectedTopics: Set<String> = []
     @State private var errorMessage: String?
 
     var body: some View {
-        VStack(spacing: 24) {
-            Spacer()
-            VStack(spacing: 0) {
-                Text("hook").font(HPFont.heroTitleSmall)
-                Text("playground").font(HPFont.heroTitleSmall)
-            }.foregroundColor(.white)
-            Text(isSignUp ? "Create your account" : "Welcome back")
-                .font(HPFont.heading).foregroundColor(.white)
-            VStack(spacing: 14) {
-                HStack {
-                    Text("Username").font(HPFont.body).foregroundColor(.white).frame(width: 85, alignment: .leading)
-                    TextField("your name", text: $username)
-                        .padding(12).background(Color.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .textInputAutocapitalization(.never)
+        ScrollView {
+            VStack(spacing: 24) {
+                Spacer(minLength: 40)
+                // Tappable title — opens the nav menu, like every other screen.
+                HookPlaygroundTitle(size: 28, twoLines: true)
+                Text(isSignUp ? "Create your account" : "Welcome back")
+                    .font(HPFont.heading).foregroundColor(.white)
+                VStack(spacing: 14) {
+                    HStack {
+                        Text("Username").font(HPFont.body).foregroundColor(.white).frame(width: 85, alignment: .leading)
+                        TextField("your name", text: $username)
+                            .padding(12).background(Color.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .textInputAutocapitalization(.never)
+                    }
+                    HStack {
+                        Text("Password").font(HPFont.body).foregroundColor(.white).frame(width: 85, alignment: .leading)
+                        SecureField("password", text: $password)
+                            .padding(12).background(Color.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
+                }.padding(.horizontal, 24)
+
+                if isSignUp {
+                    VStack(spacing: 8) {
+                        Text("What are you into?")
+                            .font(HPFont.body).foregroundColor(.white)
+                        Text("Pick the topics you want to see in Swipe or Stay.")
+                            .font(HPFont.caption).foregroundColor(.white.opacity(0.75))
+                            .multilineTextAlignment(.center)
+                        TopicSelectGrid(selected: $selectedTopics)
+                    }.padding(.horizontal, 24)
                 }
-                HStack {
-                    Text("Password").font(HPFont.body).foregroundColor(.white).frame(width: 85, alignment: .leading)
-                    SecureField("password", text: $password)
-                        .padding(12).background(Color.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                if let error = errorMessage {
+                    Text(error).font(HPFont.caption).foregroundColor(.black).padding(.horizontal)
                 }
-            }.padding(.horizontal, 24)
-            if let error = errorMessage {
-                Text(error).font(HPFont.caption).foregroundColor(.yellow).padding(.horizontal)
+                Button("CONTINUE") { submit() }
+                    .buttonStyle(HPButtonStyle(color: HPColor.ink))
+                    .disabled(username.isEmpty || password.isEmpty)
+                    .opacity(username.isEmpty || password.isEmpty ? 0.5 : 1)
+                Spacer(minLength: 40)
             }
-            Button("CONTINUE") { submit() }
-                .buttonStyle(HPButtonStyle(color: HPColor.ink))
-                .disabled(username.isEmpty || password.isEmpty)
-                .opacity(username.isEmpty || password.isEmpty ? 0.5 : 1)
-            Spacer()
+            .frame(maxWidth: .infinity)
         }
+        .scrollDismissesKeyboard(.interactively)
     }
 
     private func submit() {
@@ -115,6 +131,8 @@ private struct AuthFormView: View {
         } else {
             result = session.signIn(username: username, password: password)
         }
-        if let err = result { errorMessage = err.rawValue }
+        if let err = result { errorMessage = err.rawValue; return }
+        // Save interests on a fresh sign-up so Swipe or Stay can filter.
+        if isSignUp { session.setInterestedTopics(Array(selectedTopics)) }
     }
 }

@@ -44,6 +44,20 @@ final class HookStore: ObservableObject {
         save()
     }
 
+    /// Removes every test hook (community + user-submitted). Used by the
+    /// one-time fresh-start reset.
+    func removeTestHooks() {
+        hooks.removeAll(where: { $0.source == .testNew })
+        save()
+    }
+
+    /// Removes test hooks authored by the given names — used to clear old
+    /// community seed hooks before reseeding so they never duplicate.
+    func removeTestHooks(byAuthors authors: Set<String>) {
+        hooks.removeAll(where: { $0.source == .testNew && authors.contains($0.authorDisplayName) })
+        save()
+    }
+
     /// Lets a creator edit their own hook's text after posting it for testing.
     func updateText(hookID: UUID, newText: String) {
         if let index = hooks.firstIndex(where: { $0.id == hookID }) {
